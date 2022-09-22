@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.js",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@tale152"
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Tale152/interconnected_node.git"
+    "url": "https://github.com/Tale152/interconnected_node"
   },
   "author": "Alessandro Talmi",
   "license": "ISC",
