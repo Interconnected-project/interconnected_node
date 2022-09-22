@@ -15,7 +15,7 @@ jobs:
         with: 
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-          scope: '@tale152'
+          scope: '@Tale152'
       - run: npm install
       - run: npm publish
         env:
