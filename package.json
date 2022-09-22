@@ -22,5 +22,6 @@
   "homepage": "https://github.com/Tale152/interconnected_node#readme",
   "devDependencies": {
     "typescript": "^4.8.3"
-  }
+  },
+  "files": ["lib/**/*"]
 }
