@@ -14,10 +14,9 @@ jobs:
       - uses: actions/setup-node@v2
         with: 
           node-version: 16
-      - run: npm ci
-      - run: |
-          echo @tale152:https://npm.pkg.github.com/ > .npmrc
-          echo '//npm.pkg.github.com/:_authToken=${NPM_TOKEN}' >> .npmrc
+          registry-url: https://npm.pkg.github.com/
+          scope: '@tale152'
+      - run: npm install
       - run: npm publish
         env:
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

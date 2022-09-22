@@ -1,5 +1,5 @@
 {
-  "name": "@tale152/interconnected_node",
+  "name": "interconnected_node",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "url": "https://github.com/Tale152/interconnected_node"
+    "type": "git",
+    "url": "git+https://github.com/Tale152/interconnected_node.git"
   },
   "author": "Alessandro Talmi",
   "license": "ISC",
