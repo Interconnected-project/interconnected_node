@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "lib/index.js",
+  "module": "lib/index.js",
   "types": "lib/index.d.ts",
   "publishConfig": {
     "@Tale152:registry": "https://npm.pkg.github.com"
@@ -23,5 +24,5 @@
   "devDependencies": {
     "typescript": "^4.8.3"
   },
-  "files": ["lib/**/*"]
+  "files": ["lib"]
 }
