@@ -1,18 +1,11 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "es5",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "lib",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "outDir": "./lib",
+    "strict": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
