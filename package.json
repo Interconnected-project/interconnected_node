@@ -1,0 +1,22 @@
+{
+  "name": "interconnected_node",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@Tale152"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tale152/interconnected_node.git"
+  },
+  "author": "Alessandro Talmi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tale152/interconnected_node/issues"
+  },
+  "homepage": "https://github.com/Tale152/interconnected_node#readme"
+}
