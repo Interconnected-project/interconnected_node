@@ -2,13 +2,9 @@ import AuthenticationManager from './authentication_manager/AuthenticationManage
 import ConnectionHub from './connection_hub/ConnectionHub';
 
 export default class ConnectivityLayer {
-  private _connectionHub: ConnectionHub;
-  private _authenticationManager: AuthenticationManager;
-
-  constructor() {
-    this._connectionHub = new ConnectionHub();
-    this._authenticationManager = new AuthenticationManager();
-  }
+  private _connectionHub: ConnectionHub = new ConnectionHub();
+  private _authenticationManager: AuthenticationManager =
+    new AuthenticationManager();
 
   public get connectionHub(): ConnectionHub {
     return this._connectionHub;
