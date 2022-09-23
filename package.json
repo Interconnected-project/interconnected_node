@@ -25,8 +25,5 @@
   },
   "files": [
     "dist/**/*"
-  ],
-  "dependencies": {
-    "@Tale152/interconnected_node": "github:Tale152/interconnected_node"
-  }
+  ]
 }
