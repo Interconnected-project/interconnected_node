@@ -1,6 +1,6 @@
-import DeviceInfo from './device_info/DeviceInfo';
-import Resources from './resources/Resources';
-import Scheduler from './scheduler/Scheduler';
+import { DeviceInfo } from './device_info/DeviceInfo';
+import { Resources } from './resources/Resources';
+import { Scheduler } from './scheduler/Scheduler';
 
 export default class FabricLayer {
   private _deviceInfo: DeviceInfo;

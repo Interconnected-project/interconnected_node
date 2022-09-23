@@ -1,3 +1,3 @@
-export default interface Resources {
+export interface Resources {
   //TODO
 }

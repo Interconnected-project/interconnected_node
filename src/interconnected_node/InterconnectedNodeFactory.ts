@@ -1,10 +1,10 @@
-import DeviceInfo from './fabric_layer/device_info/DeviceInfo';
+import { DeviceInfo } from './fabric_layer/device_info/DeviceInfo';
 import FabricLayer from './fabric_layer/FabricLayer';
-import Resources from './fabric_layer/resources/Resources';
-import Scheduler from './fabric_layer/scheduler/Scheduler';
+import { Resources } from './fabric_layer/resources/Resources';
+import { Scheduler } from './fabric_layer/scheduler/Scheduler';
 import InterconnectedNode from './InterconnectedNode';
 
-export default class InterconnectedNodeFactory {
+export class InterconnectedNodeFactory {
   private deviceInfo: DeviceInfo | null;
   private resources: Resources | null;
   private scheduler: Scheduler | null;

@@ -1,4 +1,4 @@
-export default interface DeviceInfo {
+export interface DeviceInfo {
   getOwnerId(): string;
 
   getDeviceId(): string;
