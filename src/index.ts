@@ -1,5 +1,5 @@
-const sayHello = function(name: string){
-    console.log("Hello " + name + "!")
-}
+const sayHello = function (name: string) {
+  console.log('Hello ' + name + '!');
+};
 
-export default sayHello
+export default sayHello;

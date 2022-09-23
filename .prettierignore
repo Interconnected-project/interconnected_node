@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.editorconfig
+.eslintignore
+.eslintrc
+.gitignore
+.prettierignore
+.prettierrc
+package-lock.json
+package.json
