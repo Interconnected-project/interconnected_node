@@ -23,5 +23,10 @@
   "devDependencies": {
     "typescript": "^4.8.3"
   },
-  "files": ["dist/**/*"]
+  "files": [
+    "dist/**/*"
+  ],
+  "dependencies": {
+    "@Tale152/interconnected_node": "github:Tale152/interconnected_node"
+  }
 }
