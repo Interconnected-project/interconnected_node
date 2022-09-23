@@ -1,3 +1,3 @@
-interface Scheduler {
+export default interface Scheduler {
   //TODO
 }
