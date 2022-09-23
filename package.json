@@ -28,8 +28,5 @@
   },
   "files": [
     "dist/**/*"
-  ],
-  "dependencies": {
-    "interconnected_node_test": "^0.0.2"
-  }
+  ]
 }
