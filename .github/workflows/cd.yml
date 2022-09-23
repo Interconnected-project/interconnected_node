@@ -1,7 +1,8 @@
 name: Publish package on release
 
 on:
-  push:
+  release:
+    types: [created]
 
 jobs:
   publish-library:

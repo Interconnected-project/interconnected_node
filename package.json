@@ -1,6 +1,6 @@
 {
-  "name": "interconnected_node_test",
-  "version": "0.0.2",
+  "name": "interconnected_node",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,5 +22,8 @@
   },
   "files": [
     "dist/**/*"
-  ]
+  ],
+  "dependencies": {
+    "interconnected_node_test": "^0.0.2"
+  }
 }
