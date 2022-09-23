@@ -15,6 +15,6 @@
         "project": ["./tsconfig.json"]
       },
     "rules": {
-        "max-len": ["warn", 80, { "ignorePattern": "^import .*" }]
+        "max-len": ["warn", 80, { "ignorePattern": "^import .* || ^export .*" }]
       }
   }
