@@ -1,3 +1,4 @@
+import { throwIfNotNull } from '../common/ErrorHandling';
 import { DeviceInfo } from './fabric_layer/device_info/DeviceInfo';
 import FabricLayer from './fabric_layer/FabricLayer';
 import { Resources } from './fabric_layer/resources/Resources';
@@ -13,7 +14,7 @@ export class InterconnectedNodeBuilder {
   setDeviceInfo(
     deviceSpecificImplementation: DeviceInfo
   ): InterconnectedNodeBuilder {
-    this.throwIfNotNull(this.deviceInfo, 'DeviceInfo is already set');
+    throwIfNotNull(this.deviceInfo, 'DeviceInfo is already set');
     this.deviceInfo = deviceSpecificImplementation;
     return this;
   }
@@ -21,7 +22,7 @@ export class InterconnectedNodeBuilder {
   setResources(
     deviceSpecificImplementation: Resources
   ): InterconnectedNodeBuilder {
-    this.throwIfNotNull(this.resources, 'Resources is already set');
+    throwIfNotNull(this.resources, 'Resources is already set');
     this.resources = deviceSpecificImplementation;
     return this;
   }
@@ -29,13 +30,13 @@ export class InterconnectedNodeBuilder {
   setScheduler(
     deviceSpecificImplementation: Scheduler
   ): InterconnectedNodeBuilder {
-    this.throwIfNotNull(this.scheduler, 'Scheduler is already set');
+    throwIfNotNull(this.scheduler, 'Scheduler is already set');
     this.scheduler = deviceSpecificImplementation;
     return this;
   }
 
   build(): InterconnectedNode {
-    this.throwIfNotNull(
+    throwIfNotNull(
       this.interconnectedNode,
       'An InterconnectedNode has already been built'
     );
@@ -52,13 +53,6 @@ export class InterconnectedNodeBuilder {
       return new InterconnectedNode(fabricLayer);
     } else {
       throw new Error('Incorrect build process');
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private throwIfNotNull(v: any, message: string) {
-    if (v !== null) {
-      throw new Error(message);
     }
   }
 }
