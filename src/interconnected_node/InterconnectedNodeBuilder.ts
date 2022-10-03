@@ -4,7 +4,7 @@ import { Resources } from './fabric_layer/resources/Resources';
 import { Scheduler } from './fabric_layer/scheduler/Scheduler';
 import InterconnectedNode from './InterconnectedNode';
 
-export class InterconnectedNodeFactory {
+export class InterconnectedNodeBuilder {
   private deviceInfo: DeviceInfo | null;
   private resources: Resources | null;
   private scheduler: Scheduler | null;
@@ -19,7 +19,7 @@ export class InterconnectedNodeFactory {
 
   setDeviceInfo(
     deviceSpecificImplementation: DeviceInfo
-  ): InterconnectedNodeFactory {
+  ): InterconnectedNodeBuilder {
     this.throwIfNotNull(this.deviceInfo, 'DeviceInfo is already set');
     this.deviceInfo = deviceSpecificImplementation;
     return this;
@@ -27,7 +27,7 @@ export class InterconnectedNodeFactory {
 
   setResources(
     deviceSpecificImplementation: Resources
-  ): InterconnectedNodeFactory {
+  ): InterconnectedNodeBuilder {
     this.throwIfNotNull(this.resources, 'Resources is already set');
     this.resources = deviceSpecificImplementation;
     return this;
@@ -35,7 +35,7 @@ export class InterconnectedNodeFactory {
 
   setScheduler(
     deviceSpecificImplementation: Scheduler
-  ): InterconnectedNodeFactory {
+  ): InterconnectedNodeBuilder {
     this.throwIfNotNull(this.scheduler, 'Scheduler is already set');
     this.scheduler = deviceSpecificImplementation;
     return this;
