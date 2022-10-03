@@ -1,9 +1,9 @@
 import { DiskType } from './DiskType';
 
 export interface Disk {
-  getDiskType(): DiskType;
+  get diskType(): DiskType;
 
-  getSizeMb(): number;
+  get sizeMb(): number;
 
-  getCurrentlyAvailableMb(): number;
+  get currentlyAvailableMb(): number;
 }
