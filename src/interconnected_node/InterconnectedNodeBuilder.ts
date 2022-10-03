@@ -50,7 +50,8 @@ export class InterconnectedNodeBuilder {
         this.scheduler,
         this.resources
       );
-      return new InterconnectedNode(fabricLayer);
+      this.interconnectedNode = new InterconnectedNode(fabricLayer);
+      return this.interconnectedNode;
     } else {
       throw new Error('Incorrect build process');
     }
