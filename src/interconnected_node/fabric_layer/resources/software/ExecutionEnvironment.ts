@@ -12,11 +12,11 @@ export class ExecutionEnvironment {
     this._supportedVersions = supportedVersion;
   }
 
-  getExecutionPlatform(): ExecutionPlatform {
+  get executionPlatform(): ExecutionPlatform {
     return this._executionPlatform;
   }
 
-  getSupportedVersions(): Set<string> {
+  get supportedVersions(): Set<string> {
     return this.deepCopySupportedVersions(this._supportedVersions);
   }
 
