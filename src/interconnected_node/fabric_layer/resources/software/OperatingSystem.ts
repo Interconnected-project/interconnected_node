@@ -14,6 +14,6 @@ export class OperatingSystem {
   }
 
   get version(): string {
-    return this._version;
+    return JSON.parse(JSON.stringify(this._version));
   }
 }
