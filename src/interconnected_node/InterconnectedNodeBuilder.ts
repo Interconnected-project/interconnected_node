@@ -5,17 +5,10 @@ import { Scheduler } from './fabric_layer/scheduler/Scheduler';
 import InterconnectedNode from './InterconnectedNode';
 
 export class InterconnectedNodeBuilder {
-  private deviceInfo: DeviceInfo | null;
-  private resources: Resources | null;
-  private scheduler: Scheduler | null;
-  private interconnectedNode: InterconnectedNode | null;
-
-  constructor() {
-    this.deviceInfo = null;
-    this.resources = null;
-    this.scheduler = null;
-    this.interconnectedNode = null;
-  }
+  private deviceInfo: DeviceInfo | null = null;
+  private resources: Resources | null = null;
+  private scheduler: Scheduler | null = null;
+  private interconnectedNode: InterconnectedNode | null = null;
 
   setDeviceInfo(
     deviceSpecificImplementation: DeviceInfo
