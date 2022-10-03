@@ -9,11 +9,11 @@ export class OperatingSystem {
     this._version = version;
   }
 
-  getOperatingSystemName(): OperatingSystemName {
+  get operatingSystemName(): OperatingSystemName {
     return this._name;
   }
 
-  getVersion(): string {
+  get version(): string {
     return this._version;
   }
 }
