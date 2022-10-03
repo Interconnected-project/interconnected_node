@@ -1,5 +1,5 @@
 export interface Processor {
-  getCoresNumber(): number;
+  get coresNumber(): number;
 
-  getFrequencyMHz(): number;
+  get frequencyMHz(): number;
 }
