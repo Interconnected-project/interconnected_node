@@ -1,5 +1,5 @@
 export interface Memory {
-  getTotalSizeMb(): number;
+  get totalSizeMb(): number;
 
-  getCurrentlyAvailableMb(): number;
+  get currentlyAvailableMb(): number;
 }
