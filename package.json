@@ -28,5 +28,8 @@
   },
   "files": [
     "dist/**/*"
-  ]
+  ],
+  "dependencies": {
+    "macaddress": "^0.5.3"
+  }
 }
