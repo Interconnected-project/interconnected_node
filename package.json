@@ -30,7 +30,6 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "macaddress": "^0.5.3",
     "socket.io-client": "^4.5.3"
   }
 }
