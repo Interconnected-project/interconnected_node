@@ -1,6 +1,6 @@
 import { throwIfNotNull } from '../common/ErrorHandling';
 import { DeviceInfo } from './fabric_layer/device_info/DeviceInfo';
-import FabricLayer from './fabric_layer/FabricLayer';
+//import FabricLayer from './fabric_layer/FabricLayer';
 import { Resources } from './fabric_layer/resources/Resources';
 import { Scheduler } from './fabric_layer/scheduler/Scheduler';
 import InterconnectedNode from './InterconnectedNode';
@@ -40,6 +40,7 @@ export class InterconnectedNodeBuilder {
       this.interconnectedNode,
       'An InterconnectedNode has already been built'
     );
+    /*
     if (
       this.deviceInfo !== null &&
       this.scheduler !== null &&
@@ -55,5 +56,8 @@ export class InterconnectedNodeBuilder {
     } else {
       throw new Error('Incorrect build process');
     }
+    */
+    this.interconnectedNode = new InterconnectedNode();
+    return this.interconnectedNode;
   }
 }
