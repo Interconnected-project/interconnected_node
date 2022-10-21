@@ -15,7 +15,11 @@ export default class InterconnectedNode {
     this.socket = undefined;
   }
 
-  start(mac: string, printCallback: (msg: string) => void): Promise<void> {
+  start(
+    mac: string,
+    guiPrintCallback: (msg: string) => void,
+    backgroundPrintCallback: (msg: string) => void
+  ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this.socket !== undefined) {
         reject();
@@ -31,24 +35,23 @@ export default class InterconnectedNode {
         );
 
         this.socket.on('connect', function () {
-          printCallback('Node Connected!');
+          guiPrintCallback('Node connected!');
         });
 
         this.socket.on('disconnect', function () {
-          printCallback('Node Disconnected');
+          guiPrintCallback('Node disconnected!');
         });
 
-        this.socket.on('connect_error', (err) => {
-          printCallback('ERROR');
-          printCallback(err.message);
+        this.socket.on('connect_error', (err: { message: string }) => {
+          guiPrintCallback('ERROR\n' + err.message);
         });
 
-        this.socket.on('RECRUITMENT', (payload) => {
-          printCallback(payload);
+        this.socket.on('RECRUITMENT', (payload: string) => {
+          backgroundPrintCallback(payload);
         });
 
-        this.socket.on('TEST', (msg) => {
-          printCallback(msg);
+        this.socket.on('TEST', (msg: string) => {
+          backgroundPrintCallback('Test response: ' + msg);
         });
 
         this.socket.connect();
