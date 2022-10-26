@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
 import Peer from 'simple-peer';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const wrtc = require('wrtc');
 
 const BROKER_SERVICE_ADDRESS =
   'http://ec2-3-208-18-248.compute-1.amazonaws.com:8000';
@@ -12,6 +10,7 @@ export default class BrokerServiceSocket {
   private peer: Peer.Instance | undefined;
 
   constructor(
+    private wrtc: any,
     private id: string,
     private guiPrintCallback: (msg: string) => void,
     private backgroundPrintCallback: (msg: string) => void
@@ -72,7 +71,11 @@ export default class BrokerServiceSocket {
           ' initiator ' +
           payload.initiatorId
       );
-      this.peer = new Peer({ initiator: false, trickle: false, wrtc: wrtc });
+      this.peer = new Peer({
+        initiator: false,
+        trickle: false,
+        wrtc: this.wrtc,
+      });
 
       this.peer.on('signal', (data) => {
         this.guiPrintCallback(

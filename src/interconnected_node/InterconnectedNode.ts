@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BrokerServiceSocket from '../BrokerServiceSocket';
 
 // import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
@@ -16,6 +17,7 @@ export default class InterconnectedNode {
   }
 
   start(
+    wrtc: any,
     id: string,
     guiPrintCallback: (msg: string) => void,
     backgroundPrintCallback: (msg: string) => void
@@ -25,6 +27,7 @@ export default class InterconnectedNode {
         reject();
       } else {
         this.brokerServiceSocket = new BrokerServiceSocket(
+          wrtc,
           id,
           guiPrintCallback,
           backgroundPrintCallback

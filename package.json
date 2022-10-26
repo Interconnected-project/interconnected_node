@@ -32,7 +32,6 @@
   ],
   "dependencies": {
     "simple-peer": "^9.11.1",
-    "socket.io-client": "^4.5.3",
-    "wrtc": "^0.4.7"
+    "socket.io-client": "^4.5.3"
   }
 }
