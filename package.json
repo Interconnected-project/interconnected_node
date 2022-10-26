@@ -1,6 +1,6 @@
 {
   "name": "interconnected_node",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "simple-peer": "^9.11.1",
+    "simple-peer": "github:ExpandoPakistan/simple-peer-legacy",
     "socket.io-client": "^4.5.3"
   }
 }
