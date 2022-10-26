@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Tale152/interconnected_node#readme",
   "devDependencies": {
     "@types/node": "^18.8.0",
+    "@types/simple-peer": "^9.11.5",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "prettier": "^2.7.1",
     "ts-node": "^10.9.1",
@@ -30,6 +31,8 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "socket.io-client": "^4.5.3"
+    "simple-peer": "^9.11.1",
+    "socket.io-client": "^4.5.3",
+    "wrtc": "^0.4.7"
   }
 }
