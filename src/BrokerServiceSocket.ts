@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
-import Peer from 'simple-peer';
 
 const BROKER_SERVICE_ADDRESS =
   'http://ec2-3-208-18-248.compute-1.amazonaws.com:8000';
 
 export default class BrokerServiceSocket {
   private socket: Socket;
-  private peer: Peer.Instance | undefined;
 
   constructor(
-    private wrtc: any,
     private id: string,
-    private guiPrintCallback: (msg: string) => void,
-    private backgroundPrintCallback: (msg: string) => void
+    private logCallback: (msg: string) => void,
+    private onIncomingConnectionHandler: (payload: any) => any,
+    private onIceCandidateReceivedHandler: (payload: any) => void
   ) {
     this.socket = io(BROKER_SERVICE_ADDRESS, {
       autoConnect: false,
@@ -23,7 +21,6 @@ export default class BrokerServiceSocket {
       },
     });
     this.applyHandlers();
-    this.peer = undefined;
   }
 
   connect(): void {
@@ -34,17 +31,21 @@ export default class BrokerServiceSocket {
     this.socket.disconnect();
   }
 
+  emit(channel: string, payload: any): void {
+    this.socket.emit(channel, payload);
+  }
+
   private applyHandlers(): void {
     this.socket.on('connect', () => {
-      this.guiPrintCallback('Node connected to Broker!');
+      this.logCallback('Node connected to Broker!');
     });
 
     this.socket.on('connect_error', (err) => {
-      this.guiPrintCallback('Broker connection error: ' + err.message);
+      this.logCallback('Broker connection error: ' + err.message);
     });
 
     this.socket.on('RECRUITMENT_BROADCAST', (payload: any) => {
-      this.guiPrintCallback(
+      this.logCallback(
         'Received RECRUITMENT_BROADCAST from ' +
           payload.invokingEndpointId +
           ' for ' +
@@ -54,9 +55,9 @@ export default class BrokerServiceSocket {
       );
       //TODO check for requirements and blacklist
       payload.answererId = this.id;
-      this.socket.emit('RECRUITMENT_ACCEPT', payload);
-      this.guiPrintCallback('Node disconnected from Broker');
-      this.guiPrintCallback(
+      this.emit('RECRUITMENT_ACCEPT', payload);
+      this.logCallback('Node disconnected from Broker');
+      this.logCallback(
         'Sent RECRUITMENT_ACCEPT to ' +
           payload.initiatorRole +
           ' initiator ' +
@@ -65,37 +66,24 @@ export default class BrokerServiceSocket {
     });
 
     this.socket.on('INCOMING_CONNECTION', (payload: any) => {
-      this.guiPrintCallback(
+      this.logCallback(
         'Received INCOMING_CONNECTION from ' +
           payload.initiatorRole +
           ' initiator ' +
           payload.initiatorId
       );
-      this.peer = new Peer({
-        initiator: false,
-        trickle: false,
-        wrtc: this.wrtc,
-      });
+      const newPayload = this.onIncomingConnectionHandler(payload);
+      this.emit('ANSWER_CONNECTION', newPayload);
+    });
 
-      this.peer.on('signal', (data) => {
-        this.guiPrintCallback(
-          'Sending ANSWER_CONNECTION to ' + payload.initiatorId
-        );
-        payload.signal = data;
-        this.socket.emit('ANSWER_CONNECTION', payload);
-      });
-
-      this.peer.on('connect', () => {
-        this.backgroundPrintCallback(
-          'Created P2P connection with ' + payload.initiatorId
-        );
-      });
-
-      this.peer.on('data', (data) => {
-        this.guiPrintCallback(data.toString());
-      });
-
-      this.peer.signal(payload.signal);
+    this.socket.on('ICE_CANDIDATE', (payload: any) => {
+      this.logCallback(
+        'Received ICE_CANDIDATE from ' +
+          payload.senderRole +
+          ' ' +
+          payload.fromId
+      );
+      this.onIceCandidateReceivedHandler(payload);
     });
   }
 }

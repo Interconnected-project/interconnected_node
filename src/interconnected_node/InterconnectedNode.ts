@@ -17,20 +17,20 @@ export default class InterconnectedNode {
   }
 
   start(
-    wrtc: any,
     id: string,
-    guiPrintCallback: (msg: string) => void,
-    backgroundPrintCallback: (msg: string) => void
+    logCallback: (msg: string) => void,
+    onIncomingConnectionHandler: (payload: any) => any,
+    onIceCandidateReceivedHandler: (payload: any) => void
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this.brokerServiceSocket !== undefined) {
         reject();
       } else {
         this.brokerServiceSocket = new BrokerServiceSocket(
-          wrtc,
           id,
-          guiPrintCallback,
-          backgroundPrintCallback
+          logCallback,
+          onIncomingConnectionHandler,
+          onIceCandidateReceivedHandler
         );
         this.brokerServiceSocket.connect();
         resolve();
@@ -45,6 +45,17 @@ export default class InterconnectedNode {
       } else {
         this.brokerServiceSocket.disconnect();
         this.brokerServiceSocket = undefined;
+        resolve();
+      }
+    });
+  }
+
+  emitIceCandidate(payload: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (this.brokerServiceSocket === undefined) {
+        reject();
+      } else {
+        this.brokerServiceSocket.emit('ICE_CANDIDATE', payload);
         resolve();
       }
     });
