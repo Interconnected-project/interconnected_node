@@ -19,7 +19,7 @@ export default class InterconnectedNode {
   start(
     id: string,
     logCallback: (msg: string) => void,
-    onIncomingConnectionHandler: (payload: any) => any,
+    onIncomingConnectionHandler: (payload: any) => Promise<any>,
     onIceCandidateReceivedHandler: (payload: any) => void
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {

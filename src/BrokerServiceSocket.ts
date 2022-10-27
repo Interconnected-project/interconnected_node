@@ -10,7 +10,7 @@ export default class BrokerServiceSocket {
   constructor(
     private id: string,
     private logCallback: (msg: string) => void,
-    private onIncomingConnectionHandler: (payload: any) => any,
+    private onIncomingConnectionHandler: (payload: any) => Promise<any>,
     private onIceCandidateReceivedHandler: (payload: any) => void
   ) {
     this.socket = io(BROKER_SERVICE_ADDRESS, {
@@ -72,8 +72,9 @@ export default class BrokerServiceSocket {
           ' initiator ' +
           payload.initiatorId
       );
-      const newPayload = this.onIncomingConnectionHandler(payload);
-      this.emit('ANSWER_CONNECTION', newPayload);
+      this.onIncomingConnectionHandler(payload).then((newPayload) => {
+        this.emit('ANSWER_CONNECTION', newPayload);
+      });
     });
 
     this.socket.on('ICE_CANDIDATE', (payload: any) => {
