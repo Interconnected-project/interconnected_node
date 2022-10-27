@@ -12,11 +12,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '14.x'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_REGISTRY_TOKEN }}
       - run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_REGISTRY_TOKEN }}
       - run: npm run build
       - uses: JS-DevTools/npm-publish@v1
         with:
