@@ -56,8 +56,8 @@ export default class InterconnectedNode {
   }
 
   isRunning(): Promise<boolean> {
-    return new Promise<boolean>(() => {
-      throw new Error('Not implemented');
+    return new Promise<boolean>((resolve) => {
+      resolve(this.brokerServiceSocket !== undefined);
     });
   }
 
