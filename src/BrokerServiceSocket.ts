@@ -56,7 +56,6 @@ export default class BrokerServiceSocket {
       //TODO check for requirements and blacklist
       payload.answererId = this.id;
       this.emit('RECRUITMENT_ACCEPT', payload);
-      this.logCallback('Node disconnected from Broker');
       this.logCallback(
         'Sent RECRUITMENT_ACCEPT to ' +
           payload.initiatorRole +
