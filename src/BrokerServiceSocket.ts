@@ -26,8 +26,10 @@ export default class BrokerServiceSocket {
   }
 
   disconnect(): void {
-    //TODO remove all p2p connections
     this.socket.disconnect();
+    while (this.answererP2PConnections.length > 0) {
+      this.answererP2PConnections.pop()?.disconnect();
+    }
   }
 
   private createSocket() {

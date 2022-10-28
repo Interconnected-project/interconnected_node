@@ -9,4 +9,6 @@ export default interface AnswererP2PConnection {
   get answer(): any;
 
   setIceCandidate(candidate: any): void;
+
+  disconnect(): void;
 }
