@@ -33,6 +33,10 @@ export default class BrokerServiceSocket {
     }
   }
 
+  get isConnected(): boolean {
+    return this.socket.connected;
+  }
+
   private createSocket() {
     return io(this.brokerServiceAddress, {
       autoConnect: false,

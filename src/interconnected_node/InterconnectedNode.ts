@@ -62,8 +62,12 @@ export default class InterconnectedNode {
   }
 
   isConnectedToGrid(): Promise<boolean> {
-    return new Promise<boolean>(() => {
-      throw new Error('Not implemented');
+    return new Promise<boolean>((resolve, reject) => {
+      if (this.brokerServiceSocket === undefined) {
+        reject();
+      } else {
+        resolve(this.brokerServiceSocket.isConnected);
+      }
     });
   }
 
