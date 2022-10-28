@@ -18,6 +18,7 @@ export default class InterconnectedNode {
   }
 
   start(
+    brokerServiceAddress: string,
     id: string,
     logCallback: (msg: string) => void,
     onIncomingConnectionHandler: (
@@ -30,6 +31,7 @@ export default class InterconnectedNode {
         reject();
       } else {
         this.brokerServiceSocket = new BrokerServiceSocket(
+          brokerServiceAddress,
           id,
           logCallback,
           onIncomingConnectionHandler

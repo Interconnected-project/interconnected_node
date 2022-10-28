@@ -2,14 +2,12 @@
 import { io, Socket } from 'socket.io-client';
 import AnswererP2PConnection from './AnswererP2PConnection';
 
-const BROKER_SERVICE_ADDRESS =
-  'http://ec2-3-208-18-248.compute-1.amazonaws.com:8000';
-
 export default class BrokerServiceSocket {
   private socket: Socket;
   private answererP2PConnections: AnswererP2PConnection[] = [];
 
   constructor(
+    brokerServiceAddress: string,
     private id: string,
     private logCallback: (msg: string) => void,
     private onIncomingConnectionHandler: (
@@ -17,7 +15,7 @@ export default class BrokerServiceSocket {
       emitIceCandidate: (payload: any) => void
     ) => Promise<AnswererP2PConnection>
   ) {
-    this.socket = io(BROKER_SERVICE_ADDRESS, {
+    this.socket = io(brokerServiceAddress, {
       autoConnect: false,
       query: {
         id: id,
