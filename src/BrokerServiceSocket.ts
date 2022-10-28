@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
+import AnswererP2PConnection from './AnswererP2PConnection';
 
 const BROKER_SERVICE_ADDRESS =
   'http://ec2-3-208-18-248.compute-1.amazonaws.com:8000';
 
 export default class BrokerServiceSocket {
   private socket: Socket;
+  private answererP2PConnections: AnswererP2PConnection[] = [];
 
   constructor(
     private id: string,
     private logCallback: (msg: string) => void,
-    private onIncomingConnectionHandler: (payload: any) => Promise<any>,
-    private onIceCandidateReceivedHandler: (payload: any) => void
+    private onIncomingConnectionHandler: (
+      payload: any,
+      emitIceCandidate: (payload: any) => void
+    ) => Promise<AnswererP2PConnection>
   ) {
     this.socket = io(BROKER_SERVICE_ADDRESS, {
       autoConnect: false,
@@ -28,10 +32,11 @@ export default class BrokerServiceSocket {
   }
 
   disconnect(): void {
+    //TODO remove all p2p connections
     this.socket.disconnect();
   }
 
-  emit(channel: string, payload: any): void {
+  private emit(channel: string, payload: any): void {
     this.socket.emit(channel, payload);
   }
 
@@ -53,7 +58,7 @@ export default class BrokerServiceSocket {
           ' initiator ' +
           payload.initiatorId
       );
-      //TODO check for requirements and blacklist
+      //TODO check for requirements
       payload.answererId = this.id;
       this.emit('RECRUITMENT_ACCEPT', payload);
       this.logCallback(
@@ -71,8 +76,15 @@ export default class BrokerServiceSocket {
           ' initiator ' +
           payload.initiatorId
       );
-      this.onIncomingConnectionHandler(payload).then((newPayload) => {
-        this.emit('ANSWER_CONNECTION', newPayload);
+      this.onIncomingConnectionHandler(payload, (iceCandidatePayload: any) => {
+        this.logCallback(
+          'Emitting ICE_CANDIDATE to ' + iceCandidatePayload.toId
+        );
+        this.emit('ICE_CANDIDATE', iceCandidatePayload);
+      }).then((answererP2PConnection: AnswererP2PConnection) => {
+        this.answererP2PConnections.push(answererP2PConnection);
+        payload.sdp = answererP2PConnection.answer;
+        this.emit('ANSWER_CONNECTION', payload);
       });
     });
 
@@ -83,7 +95,12 @@ export default class BrokerServiceSocket {
           ' ' +
           payload.fromId
       );
-      this.onIceCandidateReceivedHandler(payload);
+      const answererP2P = this.answererP2PConnections.find(
+        (conn) => conn.initiatorId === payload.fromId
+      );
+      if (answererP2P !== undefined && payload.candidate !== undefined) {
+        answererP2P.setIceCandidate(payload.candidate);
+      }
     });
   }
 }

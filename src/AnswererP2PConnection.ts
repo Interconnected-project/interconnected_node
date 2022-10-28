@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default interface P2PConnection {
+export default interface AnswererP2PConnection {
   get myId(): string;
 
   get initiatorId(): string;

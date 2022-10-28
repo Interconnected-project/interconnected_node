@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import AnswererP2PConnection from '../AnswererP2PConnection';
 import BrokerServiceSocket from '../BrokerServiceSocket';
 
 // import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
@@ -19,8 +20,10 @@ export default class InterconnectedNode {
   start(
     id: string,
     logCallback: (msg: string) => void,
-    onIncomingConnectionHandler: (payload: any) => Promise<any>,
-    onIceCandidateReceivedHandler: (payload: any) => void
+    onIncomingConnectionHandler: (
+      payload: any,
+      emitIceCandidate: (payload: any) => void
+    ) => Promise<AnswererP2PConnection>
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       if (this.brokerServiceSocket !== undefined) {
@@ -29,8 +32,7 @@ export default class InterconnectedNode {
         this.brokerServiceSocket = new BrokerServiceSocket(
           id,
           logCallback,
-          onIncomingConnectionHandler,
-          onIceCandidateReceivedHandler
+          onIncomingConnectionHandler
         );
         this.brokerServiceSocket.connect();
         resolve();
@@ -45,17 +47,6 @@ export default class InterconnectedNode {
       } else {
         this.brokerServiceSocket.disconnect();
         this.brokerServiceSocket = undefined;
-        resolve();
-      }
-    });
-  }
-
-  emitIceCandidate(payload: any): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.brokerServiceSocket === undefined) {
-        reject();
-      } else {
-        this.brokerServiceSocket.emit('ICE_CANDIDATE', payload);
         resolve();
       }
     });
