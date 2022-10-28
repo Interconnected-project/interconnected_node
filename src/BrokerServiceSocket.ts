@@ -8,22 +8,16 @@ export default class BrokerServiceSocket {
   private answererP2PConnections: AnswererP2PConnection[] = [];
 
   constructor(
-    brokerServiceAddress: string,
+    private brokerServiceAddress: string,
     private id: string,
     private logCallback: (msg: string) => void,
     private onIncomingConnectionHandler: (
       payload: any,
-      emitIceCandidate: (payload: any) => void
+      emitIceCandidateCallback: (payload: any) => void
     ) => Promise<AnswererP2PConnection>
   ) {
-    this.socket = io(brokerServiceAddress, {
-      autoConnect: false,
-      query: {
-        id: id,
-        role: 'NODE',
-      },
-    });
-    this.applyHandlers();
+    this.socket = this.createSocket();
+    this.applyHandlersToSocket();
   }
 
   connect(): void {
@@ -35,11 +29,26 @@ export default class BrokerServiceSocket {
     this.socket.disconnect();
   }
 
-  private emit(channel: string, payload: any): void {
+  private createSocket() {
+    return io(this.brokerServiceAddress, {
+      autoConnect: false,
+      query: {
+        id: this.id,
+        role: 'NODE',
+      },
+    });
+  }
+
+  private emit(channel: string, toId: string, payload: any): void {
+    this.logCallback('Emitting ' + channel + ' to ' + toId);
     this.socket.emit(channel, payload);
   }
 
-  private applyHandlers(): void {
+  private logReceivedMessage(channel: string, fromId: string): void {
+    this.logCallback('Received ' + channel + ' from ' + fromId);
+  }
+
+  private applyHandlersToSocket(): void {
     this.socket.on('connect', () => {
       this.logCallback('Node connected to Broker!');
     });
@@ -49,68 +58,35 @@ export default class BrokerServiceSocket {
     });
 
     this.socket.on(Channels.RECRUITMENT_BROADCAST, (payload: any) => {
-      this.logCallback(
-        'Received ' +
-          Channels.RECRUITMENT_BROADCAST +
-          ' from ' +
-          payload.invokingEndpointId +
-          ' for ' +
-          payload.initiatorRole +
-          ' initiator ' +
-          payload.initiatorId
+      this.logReceivedMessage(
+        Channels.RECRUITMENT_BROADCAST,
+        payload.invokingEndpointId
       );
       //TODO check for requirements
       payload.answererId = this.id;
-      this.emit(Channels.RECRUITMENT_ACCEPT, payload);
-      this.logCallback(
-        'Sent ' +
-          Channels.RECRUITMENT_ACCEPT +
-          ' to ' +
-          payload.initiatorRole +
-          ' initiator ' +
-          payload.initiatorId
-      );
+      this.emit(Channels.RECRUITMENT_ACCEPT, payload.initiatorId, payload);
     });
 
     this.socket.on(Channels.INCOMING_CONNECTION, (payload: any) => {
-      this.logCallback(
-        'Received ' +
-          Channels.INCOMING_CONNECTION +
-          ' from ' +
-          payload.initiatorRole +
-          ' initiator ' +
-          payload.initiatorId
+      this.logReceivedMessage(
+        Channels.INCOMING_CONNECTION,
+        payload.initiatorId
       );
       this.onIncomingConnectionHandler(payload, (iceCandidatePayload: any) => {
-        this.logCallback(
-          'Emitting ' +
-            Channels.ICE_CANDIDATE +
-            ' to ' +
-            iceCandidatePayload.toId
+        this.emit(
+          Channels.ICE_CANDIDATE,
+          iceCandidatePayload.toId,
+          iceCandidatePayload
         );
-        this.emit(Channels.ICE_CANDIDATE, iceCandidatePayload);
       }).then((answererP2PConnection: AnswererP2PConnection) => {
         this.answererP2PConnections.push(answererP2PConnection);
         payload.sdp = answererP2PConnection.answer;
-        this.logCallback(
-          'Emitting ' +
-            Channels.ANSWER_CONNECTION +
-            ' to ' +
-            payload.initiatorId
-        );
-        this.emit(Channels.ANSWER_CONNECTION, payload);
+        this.emit(Channels.ANSWER_CONNECTION, payload.initiatorId, payload);
       });
     });
 
     this.socket.on(Channels.ICE_CANDIDATE, (payload: any) => {
-      this.logCallback(
-        'Received ' +
-          Channels.ICE_CANDIDATE +
-          ' from ' +
-          payload.senderRole +
-          ' ' +
-          payload.fromId
-      );
+      this.logReceivedMessage(Channels.ICE_CANDIDATE, payload.fromId);
       const answererP2P = this.answererP2PConnections.find(
         (conn) => conn.initiatorId === payload.fromId
       );
