@@ -13,7 +13,8 @@ export default class BrokerServiceSocket {
     private logCallback: (msg: string) => void,
     private onIncomingConnectionHandler: (
       payload: any,
-      emitIceCandidateCallback: (payload: any) => void
+      emitIceCandidateCallback: (payload: any) => void,
+      disconnectionCallback: () => void
     ) => Promise<AnswererP2PConnection>
   ) {
     this.answererP2PConnections = [];
@@ -75,19 +76,36 @@ export default class BrokerServiceSocket {
     );
 
     this.applyOnMessageHandler(Channels.INCOMING_CONNECTION, (payload: any) => {
-      // calling onIncomingConnectionHandler, provided by the implementor
-      this.onIncomingConnectionHandler(payload, (iceCandidatePayload: any) => {
-        /* 
-          emitIceCandidateCallback implementation served to onIncomingConnectionHandler,
-          allowing the implementor to send the Ice Candidate when a new one is generated
-          (must be here otherwise reference to "this" does not work)
-        */
-        this.emit(
-          Channels.ICE_CANDIDATE,
-          iceCandidatePayload.toId,
-          iceCandidatePayload
-        );
-      }).then((answererP2PConnection: AnswererP2PConnection) => {
+      /*
+        calling onIncomingConnectionHandler, provided by the implementor, seving to it
+        callbacks that will be used inside the acctual connection implementation
+        (these callbacks cannot be moved from here otherwise the "this" reference does not work)
+      */
+      this.onIncomingConnectionHandler(
+        payload,
+        (iceCandidatePayload: any) => {
+          /* 
+            emitIceCandidateCallback implementation served to onIncomingConnectionHandler,
+            allowing the implementor to send the Ice Candidate when a new one is generated
+          */
+          this.emit(
+            Channels.ICE_CANDIDATE,
+            iceCandidatePayload.toId,
+            iceCandidatePayload
+          );
+        },
+        () => {
+          /*
+            disconnectionCallback implementation served to onIncomingConnectionHandler,
+            allowing the implementor to call this whenever the connection is closed
+          */
+          this.answererP2PConnections = this.answererP2PConnections.filter(
+            (conn: AnswererP2PConnection) => {
+              return conn.initiatorId !== payload.initiatorId;
+            }
+          );
+        }
+      ).then((answererP2PConnection: AnswererP2PConnection) => {
         /*
           after onIncomingConnectionHandler is completed, obtaining the
           AnswererP2PConnection implementation provided by the implementor

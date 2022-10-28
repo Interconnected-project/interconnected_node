@@ -23,7 +23,8 @@ export default class InterconnectedNode {
     logCallback: (msg: string) => void,
     onIncomingConnectionHandler: (
       payload: any,
-      emitIceCandidateCallback: (payload: any) => void
+      emitIceCandidateCallback: (payload: any) => void,
+      disconnectionCallback: () => void
     ) => Promise<AnswererP2PConnection>
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
