@@ -45,8 +45,14 @@ export default class BrokerServiceSocket {
     this.socket.emit(channel, payload);
   }
 
-  private logReceivedMessage(channel: string, fromId: string): void {
-    this.logCallback('Received ' + channel + ' from ' + fromId);
+  private applyOnMessageHandler(
+    channel: string,
+    handler: (payload: any) => void
+  ): void {
+    this.socket.on(channel, (payload: any) => {
+      this.logCallback('Received ' + channel);
+      handler(payload);
+    });
   }
 
   private applyHandlersToSocket(): void {
@@ -58,36 +64,39 @@ export default class BrokerServiceSocket {
       this.logCallback('Broker connection error: ' + err.message);
     });
 
-    this.socket.on(Channels.RECRUITMENT_BROADCAST, (payload: any) => {
-      this.logReceivedMessage(
-        Channels.RECRUITMENT_BROADCAST,
-        payload.invokingEndpointId
-      );
-      //TODO check for requirements
-      payload.answererId = this.id;
-      this.emit(Channels.RECRUITMENT_ACCEPT, payload.initiatorId, payload);
-    });
+    this.applyOnMessageHandler(
+      Channels.RECRUITMENT_BROADCAST,
+      (payload: any) => {
+        payload.answererId = this.id;
+        this.emit(Channels.RECRUITMENT_ACCEPT, payload.initiatorId, payload);
+      }
+    );
 
-    this.socket.on(Channels.INCOMING_CONNECTION, (payload: any) => {
-      this.logReceivedMessage(
-        Channels.INCOMING_CONNECTION,
-        payload.initiatorId
-      );
+    this.applyOnMessageHandler(Channels.INCOMING_CONNECTION, (payload: any) => {
+      // calling onIncomingConnectionHandler, provided by the implementor
       this.onIncomingConnectionHandler(payload, (iceCandidatePayload: any) => {
+        /* 
+          emitIceCandidateCallback implementation served to onIncomingConnectionHandler,
+          allowing the implementor to send the Ice Candidate when a new one is generated
+          (must be here otherwise reference to "this" does not work)
+        */
         this.emit(
           Channels.ICE_CANDIDATE,
           iceCandidatePayload.toId,
           iceCandidatePayload
         );
       }).then((answererP2PConnection: AnswererP2PConnection) => {
+        /*
+          after onIncomingConnectionHandler is completed, obtaining the
+          AnswererP2PConnection implementation provided by the implementor
+        */
         this.answererP2PConnections.push(answererP2PConnection);
         payload.sdp = answererP2PConnection.answer;
         this.emit(Channels.ANSWER_CONNECTION, payload.initiatorId, payload);
       });
     });
 
-    this.socket.on(Channels.ICE_CANDIDATE, (payload: any) => {
-      this.logReceivedMessage(Channels.ICE_CANDIDATE, payload.fromId);
+    this.applyOnMessageHandler(Channels.ICE_CANDIDATE, (payload: any) => {
       const answererP2P = this.answererP2PConnections.find(
         (conn) => conn.initiatorId === payload.fromId
       );
