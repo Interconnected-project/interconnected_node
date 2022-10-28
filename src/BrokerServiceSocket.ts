@@ -5,7 +5,7 @@ import Channels from './Channels';
 
 export default class BrokerServiceSocket {
   private socket: Socket;
-  private answererP2PConnections: AnswererP2PConnection[] = [];
+  private answererP2PConnections: AnswererP2PConnection[];
 
   constructor(
     private brokerServiceAddress: string,
@@ -16,6 +16,7 @@ export default class BrokerServiceSocket {
       emitIceCandidateCallback: (payload: any) => void
     ) => Promise<AnswererP2PConnection>
   ) {
+    this.answererP2PConnections = [];
     this.socket = this.createSocket();
     this.applyHandlersToSocket();
   }
