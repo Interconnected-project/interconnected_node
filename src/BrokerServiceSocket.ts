@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
 import AnswererP2PConnection from './AnswererP2PConnection';
+import Channels from './Channels';
 
 export default class BrokerServiceSocket {
   private socket: Socket;
@@ -47,9 +48,11 @@ export default class BrokerServiceSocket {
       this.logCallback('Broker connection error: ' + err.message);
     });
 
-    this.socket.on('RECRUITMENT_BROADCAST', (payload: any) => {
+    this.socket.on(Channels.RECRUITMENT_BROADCAST, (payload: any) => {
       this.logCallback(
-        'Received RECRUITMENT_BROADCAST from ' +
+        'Received ' +
+          Channels.RECRUITMENT_BROADCAST +
+          ' from ' +
           payload.invokingEndpointId +
           ' for ' +
           payload.initiatorRole +
@@ -58,37 +61,52 @@ export default class BrokerServiceSocket {
       );
       //TODO check for requirements
       payload.answererId = this.id;
-      this.emit('RECRUITMENT_ACCEPT', payload);
+      this.emit(Channels.RECRUITMENT_ACCEPT, payload);
       this.logCallback(
-        'Sent RECRUITMENT_ACCEPT to ' +
+        'Sent ' +
+          Channels.RECRUITMENT_ACCEPT +
+          ' to ' +
           payload.initiatorRole +
           ' initiator ' +
           payload.initiatorId
       );
     });
 
-    this.socket.on('INCOMING_CONNECTION', (payload: any) => {
+    this.socket.on(Channels.INCOMING_CONNECTION, (payload: any) => {
       this.logCallback(
-        'Received INCOMING_CONNECTION from ' +
+        'Received ' +
+          Channels.INCOMING_CONNECTION +
+          ' from ' +
           payload.initiatorRole +
           ' initiator ' +
           payload.initiatorId
       );
       this.onIncomingConnectionHandler(payload, (iceCandidatePayload: any) => {
         this.logCallback(
-          'Emitting ICE_CANDIDATE to ' + iceCandidatePayload.toId
+          'Emitting ' +
+            Channels.ICE_CANDIDATE +
+            ' to ' +
+            iceCandidatePayload.toId
         );
-        this.emit('ICE_CANDIDATE', iceCandidatePayload);
+        this.emit(Channels.ICE_CANDIDATE, iceCandidatePayload);
       }).then((answererP2PConnection: AnswererP2PConnection) => {
         this.answererP2PConnections.push(answererP2PConnection);
         payload.sdp = answererP2PConnection.answer;
-        this.emit('ANSWER_CONNECTION', payload);
+        this.logCallback(
+          'Emitting ' +
+            Channels.ANSWER_CONNECTION +
+            ' to ' +
+            payload.initiatorId
+        );
+        this.emit(Channels.ANSWER_CONNECTION, payload);
       });
     });
 
-    this.socket.on('ICE_CANDIDATE', (payload: any) => {
+    this.socket.on(Channels.ICE_CANDIDATE, (payload: any) => {
       this.logCallback(
-        'Received ICE_CANDIDATE from ' +
+        'Received ' +
+          Channels.ICE_CANDIDATE +
+          ' from ' +
           payload.senderRole +
           ' ' +
           payload.fromId
