@@ -20,7 +20,6 @@ export default class InterconnectedNode {
   start(
     brokerServiceAddress: string,
     id: string,
-    logCallback: (msg: string) => void,
     onIncomingConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
@@ -33,7 +32,6 @@ export default class InterconnectedNode {
       } else {
         this.brokerServiceSocket = new BrokerServiceSocket(
           id,
-          logCallback,
           onIncomingConnectionHandler
         );
         this.brokerServiceSocket.open(brokerServiceAddress);

@@ -9,7 +9,6 @@ export default class BrokerServiceSocket {
 
   constructor(
     private id: string,
-    private logCallback: (msg: string) => void,
     private onIncomingConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
@@ -59,7 +58,7 @@ export default class BrokerServiceSocket {
 
   private emit(channel: string, toId: string, payload: any): void {
     if (this.socket !== undefined) {
-      this.logCallback('Emitting ' + channel + ' to ' + toId);
+      console.log('Emitting ' + channel + ' to ' + toId);
       this.socket.emit(channel, payload);
     }
   }
@@ -70,18 +69,18 @@ export default class BrokerServiceSocket {
     handler: (payload: any) => void
   ): void {
     socket.on(channel, (payload: any) => {
-      this.logCallback('Received ' + channel);
+      console.log('Received ' + channel);
       handler(payload);
     });
   }
 
   private applyHandlersToSocket(socket: Socket): void {
     socket.on('connect', () => {
-      this.logCallback('Node connected to Broker!');
+      console.log('Node connected to Broker!');
     });
 
     socket.on('connect_error', (err) => {
-      this.logCallback('Broker connection error: ' + err.message);
+      console.log('Broker connection error: ' + err.message);
     });
 
     this.applyOnMessageHandler(
