@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
-import AnswererP2PConnection from './AnswererP2PConnection';
+import AnswererP2PConnection from '../AnswererP2PConnection';
 import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default class BrokerServiceSocket {

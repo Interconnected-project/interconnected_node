@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AnswererP2PConnection from './AnswererP2PConnection';
-import BrokerServiceSocket from './BrokerServiceSocket';
+import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
 
 export class InterconnectedNode {
   private brokerServiceSocket: BrokerServiceSocket;
