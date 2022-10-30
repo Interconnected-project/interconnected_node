@@ -3,7 +3,5 @@ export interface DeviceInfo {
 
   getDeviceId(): string;
 
-  getCurrentAddress(): string;
-
   getCurrentLocation(): string;
 }
