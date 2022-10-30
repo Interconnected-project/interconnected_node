@@ -1,36 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AnswererP2PConnection from './connectivity_layer/connection_hub/AnswererP2PConnection';
-import BrokerServiceSocket from './connectivity_layer/connection_hub/BrokerServiceSocket';
-
-import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
+import AnswererP2PConnection from './AnswererP2PConnection';
+import BrokerServiceSocket from './BrokerServiceSocket';
 
 export class InterconnectedNode {
-  private connectivityLayer: ConnectivityLayer;
-  private brokerServiceSocket: BrokerServiceSocket | undefined;
+  private brokerServiceSocket: BrokerServiceSocket;
 
-  constructor() {
-    this.connectivityLayer = new ConnectivityLayer();
-    this.brokerServiceSocket = undefined;
-  }
-
-  start(
-    brokerServiceAddress: string,
-    id: string,
-    onIncomingConnectionHandler: (
+  constructor(
+    private brokerServiceAddress: string,
+    private id: string,
+    private onIncomingConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
       disconnectionCallback: () => void
     ) => Promise<AnswererP2PConnection>
-  ): Promise<void> {
+  ) {
+    this.brokerServiceSocket = new BrokerServiceSocket(
+      this.id,
+      this.onIncomingConnectionHandler
+    );
+  }
+
+  start(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (this.brokerServiceSocket !== undefined) {
+      if (this.brokerServiceSocket.isOpen) {
         reject();
       } else {
-        this.brokerServiceSocket = new BrokerServiceSocket(
-          id,
-          onIncomingConnectionHandler
-        );
-        this.brokerServiceSocket.open(brokerServiceAddress);
+        this.brokerServiceSocket.open(this.brokerServiceAddress);
         resolve();
       }
     });
@@ -38,11 +33,10 @@ export class InterconnectedNode {
 
   stop(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (this.brokerServiceSocket === undefined) {
+      if (!this.brokerServiceSocket.isOpen) {
         reject();
       } else {
         this.brokerServiceSocket.close();
-        this.brokerServiceSocket = undefined;
         resolve();
       }
     });
@@ -50,13 +44,13 @@ export class InterconnectedNode {
 
   isRunning(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-      resolve(this.brokerServiceSocket !== undefined);
+      resolve(this.brokerServiceSocket.isOpen);
     });
   }
 
   isConnectedToGrid(): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      if (this.brokerServiceSocket === undefined) {
+      if (!this.brokerServiceSocket.isOpen) {
         reject();
       } else {
         resolve(this.brokerServiceSocket.isConnected);
@@ -64,7 +58,7 @@ export class InterconnectedNode {
     });
   }
 
-  isExecutingTasks(): Promise<boolean> {
+  isContributing(): Promise<boolean> {
     return new Promise<boolean>(() => {
       throw new Error('Not implemented');
     });
