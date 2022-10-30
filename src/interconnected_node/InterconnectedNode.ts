@@ -22,22 +22,22 @@ export class InterconnectedNode {
 
   start(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (this.brokerServiceSocket.isOpen) {
-        reject();
-      } else {
+      try {
         this.brokerServiceSocket.open(this.brokerServiceAddress);
         resolve();
+      } catch {
+        reject();
       }
     });
   }
 
   stop(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (!this.brokerServiceSocket.isOpen) {
-        reject();
-      } else {
+      try {
         this.brokerServiceSocket.close();
         resolve();
+      } catch {
+        reject();
       }
     });
   }

@@ -1,4 +1,4 @@
-export default class Channels {
+export default class BrokerServiceChannels {
   private constructor() {
     //does nothing
   }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
 import AnswererP2PConnection from './AnswererP2PConnection';
-import Channels from './Channels';
+import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default class BrokerServiceSocket {
   private socket: Socket | undefined;
@@ -85,16 +85,20 @@ export default class BrokerServiceSocket {
 
     this.applyOnMessageHandler(
       socket,
-      Channels.RECRUITMENT_BROADCAST,
+      BrokerServiceChannels.RECRUITMENT_BROADCAST,
       (payload: any) => {
         payload.answererId = this.id;
-        this.emit(Channels.RECRUITMENT_ACCEPT, payload.initiatorId, payload);
+        this.emit(
+          BrokerServiceChannels.RECRUITMENT_ACCEPT,
+          payload.initiatorId,
+          payload
+        );
       }
     );
 
     this.applyOnMessageHandler(
       socket,
-      Channels.INCOMING_CONNECTION,
+      BrokerServiceChannels.INCOMING_CONNECTION,
       (payload: any) => {
         /*
         calling onIncomingConnectionHandler, provided by the implementor, seving to it
@@ -109,7 +113,7 @@ export default class BrokerServiceSocket {
             allowing the implementor to send the Ice Candidate when a new one is generated
           */
             this.emit(
-              Channels.ICE_CANDIDATE,
+              BrokerServiceChannels.ICE_CANDIDATE,
               iceCandidatePayload.toId,
               iceCandidatePayload
             );
@@ -132,14 +136,18 @@ export default class BrokerServiceSocket {
         */
           this.answererP2PConnections.push(answererP2PConnection);
           payload.sdp = answererP2PConnection.answer;
-          this.emit(Channels.ANSWER_CONNECTION, payload.initiatorId, payload);
+          this.emit(
+            BrokerServiceChannels.ANSWER_CONNECTION,
+            payload.initiatorId,
+            payload
+          );
         });
       }
     );
 
     this.applyOnMessageHandler(
       socket,
-      Channels.ICE_CANDIDATE,
+      BrokerServiceChannels.ICE_CANDIDATE,
       (payload: any) => {
         const answererP2P = this.answererP2PConnections.find(
           (conn) => conn.initiatorId === payload.fromId
