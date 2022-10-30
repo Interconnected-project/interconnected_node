@@ -2,18 +2,14 @@
 import AnswererP2PConnection from './connectivity_layer/connection_hub/AnswererP2PConnection';
 import BrokerServiceSocket from './connectivity_layer/connection_hub/BrokerServiceSocket';
 
-// import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
-// import FabricLayer from './fabric_layer/FabricLayer';
-// import ResourceLayer from './resource_layer/ResourceLayer';
+import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
 
-export default class InterconnectedNode {
-  //private connectivityLayer: ConnectivityLayer;
-  //private resourceLayer: ResourceLayer;
+export class InterconnectedNode {
+  private connectivityLayer: ConnectivityLayer;
   private brokerServiceSocket: BrokerServiceSocket | undefined;
 
-  constructor(/*private fabricLayer: FabricLayer*/) {
-    //this.connectivityLayer = new ConnectivityLayer(fabricLayer);
-    //this.resourceLayer = new ResourceLayer(fabricLayer, this.connectivityLayer);
+  constructor() {
+    this.connectivityLayer = new ConnectivityLayer();
     this.brokerServiceSocket = undefined;
   }
 
