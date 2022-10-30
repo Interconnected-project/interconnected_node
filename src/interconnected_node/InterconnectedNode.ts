@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AnswererP2PConnection from '../AnswererP2PConnection';
-import BrokerServiceSocket from '../BrokerServiceSocket';
+import AnswererP2PConnection from './connectivity_layer/connection_hub/AnswererP2PConnection';
+import BrokerServiceSocket from './connectivity_layer/connection_hub/BrokerServiceSocket';
 
 // import ConnectivityLayer from './connectivity_layer/ConnectivityLayer';
 // import FabricLayer from './fabric_layer/FabricLayer';
@@ -32,12 +32,11 @@ export default class InterconnectedNode {
         reject();
       } else {
         this.brokerServiceSocket = new BrokerServiceSocket(
-          brokerServiceAddress,
           id,
           logCallback,
           onIncomingConnectionHandler
         );
-        this.brokerServiceSocket.connect();
+        this.brokerServiceSocket.open(brokerServiceAddress);
         resolve();
       }
     });
@@ -48,7 +47,7 @@ export default class InterconnectedNode {
       if (this.brokerServiceSocket === undefined) {
         reject();
       } else {
-        this.brokerServiceSocket.disconnect();
+        this.brokerServiceSocket.close();
         this.brokerServiceSocket = undefined;
         resolve();
       }
