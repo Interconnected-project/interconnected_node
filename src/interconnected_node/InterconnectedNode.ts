@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AnswererP2PConnection from './MasterP2PConnectionion';
 import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
+import MasterP2PConnection from './masters_hub/MasterP2PConnection';
+import MastersHub from './masters_hub/MastersHub';
 
 export class InterconnectedNode {
   private brokerServiceSocket: BrokerServiceSocket;
 
   constructor(
-    private brokerServiceAddress: string,
     private id: string,
     private onIncomingConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
       disconnectionCallback: () => void
-    ) => Promise<AnswererP2PConnection>
+    ) => Promise<MasterP2PConnection>
   ) {
     this.brokerServiceSocket = new BrokerServiceSocket(
       this.id,
@@ -20,10 +20,10 @@ export class InterconnectedNode {
     );
   }
 
-  start(): Promise<void> {
+  start(brokerServiceAddress: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       try {
-        this.brokerServiceSocket.open(this.brokerServiceAddress);
+        this.brokerServiceSocket.open(brokerServiceAddress);
         resolve();
       } catch {
         reject();
@@ -59,8 +59,13 @@ export class InterconnectedNode {
   }
 
   isContributing(): Promise<boolean> {
-    return new Promise<boolean>(() => {
-      throw new Error('Not implemented');
+    return new Promise<boolean>((resolve, reject) => {
+      if (!this.brokerServiceSocket.isOpen) {
+        reject();
+      } else {
+        // TODO check also slaves
+        resolve(!MastersHub.isEmpty);
+      }
     });
   }
 }

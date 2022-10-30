@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Socket } from 'socket.io-client';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
@@ -41,7 +42,7 @@ export default function applyBrokerServiceHandlers(
       (iceCandidatePayload: any) => {
         socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
       },
-      () => MastersHub.remove(payload.initiatorId)
+      () => MastersHub.remove(payload.masterId)
     ).then((masterP2PConnection: MasterP2PConnection) => {
       MastersHub.add(masterP2PConnection);
       payload.sdp = masterP2PConnection.answer;
@@ -51,6 +52,7 @@ export default function applyBrokerServiceHandlers(
 
   // ICE_CANDIDATE handler
   socket.on(BrokerServiceChannels.ICE_CANDIDATE, (payload: any) => {
+    // TODO check dependently on fromRole
     const masterP2P = MastersHub.getByMasterId(payload.fromId);
     if (masterP2P !== undefined && payload.candidate !== undefined) {
       masterP2P.setIceCandidate(payload.candidate);

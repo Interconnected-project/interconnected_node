@@ -3,7 +3,6 @@ import { io, Socket } from 'socket.io-client';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
 import applyBrokerServiceHandlers from './applyBrokerServiceHandlers';
-import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default class BrokerServiceSocket {
   private socket: Socket | undefined;
