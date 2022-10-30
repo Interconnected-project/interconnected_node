@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default interface AnswererP2PConnection {
-  get myId(): string;
+export default interface MasterP2PConnection {
+  get operationId(): string;
 
-  get initiatorId(): string;
+  get masterId(): string;
 
-  get initiatorRole(): string;
+  get masterRole(): string;
 
   get answer(): any;
 

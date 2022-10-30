@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AnswererP2PConnection from './AnswererP2PConnection';
+import AnswererP2PConnection from './MasterP2PConnectionion';
 import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
 
 export class InterconnectedNode {

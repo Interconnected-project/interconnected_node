@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
-import AnswererP2PConnection from '../AnswererP2PConnection';
+import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
+import MastersHub from '../masters_hub/MastersHub';
 import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default class BrokerServiceSocket {
   private socket: Socket | undefined;
-  private answererP2PConnections: AnswererP2PConnection[];
 
   constructor(
     private id: string,
@@ -13,9 +13,8 @@ export default class BrokerServiceSocket {
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
       disconnectionCallback: () => void
-    ) => Promise<AnswererP2PConnection>
+    ) => Promise<MasterP2PConnection>
   ) {
-    this.answererP2PConnections = [];
     this.socket = undefined;
   }
 
@@ -39,9 +38,8 @@ export default class BrokerServiceSocket {
       throw new Error('BrokerServiceSocket is not open');
     }
     this.socket.disconnect();
-    while (this.answererP2PConnections.length > 0) {
-      this.answererP2PConnections.pop()?.disconnect();
-    }
+    const masters = MastersHub.flush();
+    masters.forEach((m) => m.disconnect());
     this.socket = undefined;
   }
 
@@ -123,19 +121,15 @@ export default class BrokerServiceSocket {
             disconnectionCallback implementation served to onIncomingConnectionHandler,
             allowing the implementor to call this whenever the connection is closed
           */
-            this.answererP2PConnections = this.answererP2PConnections.filter(
-              (conn: AnswererP2PConnection) => {
-                return conn.initiatorId !== payload.initiatorId;
-              }
-            );
+            MastersHub.remove(payload.initiatorId);
           }
-        ).then((answererP2PConnection: AnswererP2PConnection) => {
+        ).then((masterP2PConnection: MasterP2PConnection) => {
           /*
           after onIncomingConnectionHandler is completed, obtaining the
-          AnswererP2PConnection implementation provided by the implementor
+          MasterP2PConnection implementation provided by the implementor
         */
-          this.answererP2PConnections.push(answererP2PConnection);
-          payload.sdp = answererP2PConnection.answer;
+          MastersHub.add(masterP2PConnection);
+          payload.sdp = masterP2PConnection.answer;
           this.emit(
             BrokerServiceChannels.ANSWER_CONNECTION,
             payload.initiatorId,
@@ -149,11 +143,9 @@ export default class BrokerServiceSocket {
       socket,
       BrokerServiceChannels.ICE_CANDIDATE,
       (payload: any) => {
-        const answererP2P = this.answererP2PConnections.find(
-          (conn) => conn.initiatorId === payload.fromId
-        );
-        if (answererP2P !== undefined && payload.candidate !== undefined) {
-          answererP2P.setIceCandidate(payload.candidate);
+        const masterP2P = MastersHub.getByMasterId(payload.fromId);
+        if (masterP2P !== undefined && payload.candidate !== undefined) {
+          masterP2P.setIceCandidate(payload.candidate);
         }
       }
     );
