@@ -9,7 +9,7 @@ export default class BrokerServiceSocket {
 
   constructor(
     private id: string,
-    private onIncomingConnectionHandler: (
+    private onRequestConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
       disconnectionCallback: () => void
@@ -98,14 +98,14 @@ export default class BrokerServiceSocket {
 
     this.applyOnMessageHandler(
       socket,
-      BrokerServiceChannels.INCOMING_CONNECTION,
+      BrokerServiceChannels.REQUEST_CONNECTION,
       (payload: any) => {
         /*
-        calling onIncomingConnectionHandler, provided by the implementor, seving to it
+        calling onRequestConnectionHandler, provided by the implementor, seving to it
         callbacks that will be used inside the acctual connection implementation
         (these callbacks cannot be moved from here otherwise the "this" reference does not work)
       */
-        this.onIncomingConnectionHandler(
+        this.onRequestConnectionHandler(
           payload,
           (iceCandidatePayload: any) => {
             /* 
