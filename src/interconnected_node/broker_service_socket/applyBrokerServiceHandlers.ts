@@ -39,17 +39,24 @@ export default function applyBrokerServiceHandlers(
 
   // REQUEST_CONNECTION handler
   socket.on(BrokerServiceChannels.REQUEST_CONNECTION, (payload: any) => {
-    onRequestConnectionHandler(
-      payload,
-      (iceCandidatePayload: any) => {
-        socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
-      },
-      () => MastersHub.remove(payload.masterId)
-    ).then((masterP2PConnection: MasterP2PConnection) => {
-      MastersHub.add(masterP2PConnection);
-      payload.sdp = masterP2PConnection.answer;
-      socket.emit(BrokerServiceChannels.ANSWER_CONNECTION, payload);
-    });
+    if (
+      MastersHub.getByOperationId(payload.operationId) === undefined &&
+      MastersHub.getByMasterId(payload.masterId) === undefined &&
+      SlavesHub.getByOperationId(payload.operationId) === undefined &&
+      SlavesHub.getBySlaveId(payload.masterId) === undefined
+    ) {
+      onRequestConnectionHandler(
+        payload,
+        (iceCandidatePayload: any) => {
+          socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
+        },
+        () => MastersHub.remove(payload.masterId)
+      ).then((masterP2PConnection: MasterP2PConnection) => {
+        MastersHub.add(masterP2PConnection);
+        payload.sdp = masterP2PConnection.answer;
+        socket.emit(BrokerServiceChannels.ANSWER_CONNECTION, payload);
+      });
+    }
   });
 
   // ICE_CANDIDATE handler
