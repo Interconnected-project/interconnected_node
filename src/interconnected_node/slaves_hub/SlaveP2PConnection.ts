@@ -6,6 +6,8 @@ export default interface MasterP2PConnection {
 
   get offer(): any;
 
+  setAnswer(answer: any): void;
+
   setIceCandidate(candidate: any): void;
 
   disconnect(): void;
