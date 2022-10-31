@@ -2,6 +2,7 @@
 import { Socket } from 'socket.io-client';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
+import SlavesHub from '../slaves_hub/SlavesHub';
 import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default function applyBrokerServiceHandlers(
@@ -23,6 +24,7 @@ export default function applyBrokerServiceHandlers(
 
   // RECRUITMENT_BROADCAST handler
   socket.on(BrokerServiceChannels.RECRUITMENT_BROADCAST, (payload: any) => {
+    // TODO check if you have to reply
     const recruitmentAcceptPayload = {
       masterId: payload.masterId,
       masterRole: payload.masterRole,
@@ -52,10 +54,16 @@ export default function applyBrokerServiceHandlers(
 
   // ICE_CANDIDATE handler
   socket.on(BrokerServiceChannels.ICE_CANDIDATE, (payload: any) => {
-    // TODO check dependently on fromRole
-    const masterP2P = MastersHub.getByMasterId(payload.fromId);
-    if (masterP2P !== undefined && payload.candidate !== undefined) {
-      masterP2P.setIceCandidate(payload.candidate);
+    if (payload.candidate !== undefined) {
+      const masterP2P = MastersHub.getByMasterId(payload.fromId);
+      if (masterP2P !== undefined) {
+        masterP2P.setIceCandidate(payload.candidate);
+      } else {
+        const slaveP2P = SlavesHub.getBySlaveId(payload.fromId);
+        if (slaveP2P !== undefined) {
+          slaveP2P.setIceCandidate(payload.candidate);
+        }
+      }
     }
   });
 }
