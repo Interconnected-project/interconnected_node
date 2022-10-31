@@ -2,12 +2,18 @@
 import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
 import MasterP2PConnection from './masters_hub/MasterP2PConnection';
 import MastersHub from './masters_hub/MastersHub';
+import SlaveP2PConnection from './slaves_hub/SlaveP2PConnection';
 
 export class InterconnectedNode {
   private brokerServiceSocket: BrokerServiceSocket;
 
   constructor(
     private id: string,
+    private onRecruitmentAcceptHandler: (
+      payload: any,
+      emitIceCandidateCallback: (payload: any) => void,
+      disconnectionCallback: () => void
+    ) => Promise<SlaveP2PConnection>,
     private onIncomingConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
@@ -16,6 +22,7 @@ export class InterconnectedNode {
   ) {
     this.brokerServiceSocket = new BrokerServiceSocket(
       this.id,
+      this.onRecruitmentAcceptHandler,
       this.onIncomingConnectionHandler
     );
   }

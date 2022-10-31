@@ -2,12 +2,18 @@
 import { Socket } from 'socket.io-client';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
+import SlaveP2PConnection from '../slaves_hub/SlaveP2PConnection';
 import SlavesHub from '../slaves_hub/SlavesHub';
 import BrokerServiceChannels from './BrokerServiceChannels';
 
 export default function applyBrokerServiceHandlers(
   socket: Socket,
   myId: string,
+  onRecruitmentAcceptHandler: (
+    payload: any,
+    emitIceCandidateCallback: (payload: any) => void,
+    disconnectionCallback: () => void
+  ) => Promise<SlaveP2PConnection>,
   onRequestConnectionHandler: (
     payload: any,
     emitIceCandidateCallback: (payload: any) => void,
@@ -37,6 +43,21 @@ export default function applyBrokerServiceHandlers(
     );
   });
 
+  // RECRUITMENT_ACCEPT handler
+  socket.on(BrokerServiceChannels.RECRUITMENT_ACCEPT, (payload: any) => {
+    onRecruitmentAcceptHandler(
+      payload,
+      (iceCandidatePayload: any) => {
+        socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
+      },
+      () => SlavesHub.remove(payload.slaveId)
+    ).then((slaveP2PConnection: SlaveP2PConnection) => {
+      SlavesHub.add(slaveP2PConnection);
+      payload.sdp = slaveP2PConnection.offer;
+      socket.emit(BrokerServiceChannels.REQUEST_CONNECTION, payload);
+    });
+  });
+
   // REQUEST_CONNECTION handler
   socket.on(BrokerServiceChannels.REQUEST_CONNECTION, (payload: any) => {
     if (
@@ -56,6 +77,14 @@ export default function applyBrokerServiceHandlers(
         payload.sdp = masterP2PConnection.answer;
         socket.emit(BrokerServiceChannels.ANSWER_CONNECTION, payload);
       });
+    }
+  });
+
+  // ANSWER_CONNECTION handler
+  socket.on(BrokerServiceChannels.ANSWER_CONNECTION, (payload: any) => {
+    const slaveConnection = SlavesHub.getBySlaveId(payload.slaveId);
+    if (slaveConnection !== undefined) {
+      slaveConnection.setAnswer(payload.sdp);
     }
   });
 

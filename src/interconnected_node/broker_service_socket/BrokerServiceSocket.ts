@@ -2,6 +2,7 @@
 import { io, Socket } from 'socket.io-client';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
+import SlaveP2PConnection from '../slaves_hub/SlaveP2PConnection';
 import applyBrokerServiceHandlers from './applyBrokerServiceHandlers';
 
 export default class BrokerServiceSocket {
@@ -9,6 +10,11 @@ export default class BrokerServiceSocket {
 
   constructor(
     private id: string,
+    private onRecruitmentAcceptHandler: (
+      payload: any,
+      emitIceCandidateCallback: (payload: any) => void,
+      disconnectionCallback: () => void
+    ) => Promise<SlaveP2PConnection>,
     private onRequestConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
@@ -33,6 +39,7 @@ export default class BrokerServiceSocket {
     applyBrokerServiceHandlers(
       this.socket,
       this.id,
+      this.onRecruitmentAcceptHandler,
       this.onRequestConnectionHandler
     );
   }
