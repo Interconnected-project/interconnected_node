@@ -18,6 +18,7 @@ export default class BrokerServiceSocket {
     private onRequestConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
+      emitRecruitmentRequestCallback: (payload: any) => void,
       disconnectionCallback: () => void
     ) => Promise<MasterP2PConnection>
   ) {

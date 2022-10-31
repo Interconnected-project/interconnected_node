@@ -17,6 +17,7 @@ export default function applyBrokerServiceHandlers(
   onRequestConnectionHandler: (
     payload: any,
     emitIceCandidateCallback: (payload: any) => void,
+    emitRecruitmentRequestCallback: (payload: any) => void,
     disconnectionCallback: () => void
   ) => Promise<MasterP2PConnection>
 ): void {
@@ -30,17 +31,25 @@ export default function applyBrokerServiceHandlers(
 
   // RECRUITMENT_BROADCAST handler
   socket.on(BrokerServiceChannels.RECRUITMENT_BROADCAST, (payload: any) => {
-    // TODO check if you have to reply
-    const recruitmentAcceptPayload = {
-      masterId: payload.masterId,
-      masterRole: payload.masterRole,
-      operationId: payload.operationId,
-      slaveId: myId,
-    };
-    socket.emit(
-      BrokerServiceChannels.RECRUITMENT_ACCEPT,
-      recruitmentAcceptPayload
-    );
+    // TODO requirements
+    if (
+      payload.masterId !== myId &&
+      MastersHub.getByOperationId(payload.operationId) === undefined &&
+      MastersHub.getByMasterId(payload.masterId) === undefined &&
+      SlavesHub.getByOperationId(payload.operationId) === undefined &&
+      SlavesHub.getBySlaveId(payload.masterId) === undefined
+    ) {
+      const recruitmentAcceptPayload = {
+        masterId: payload.masterId,
+        masterRole: payload.masterRole,
+        operationId: payload.operationId,
+        slaveId: myId,
+      };
+      socket.emit(
+        BrokerServiceChannels.RECRUITMENT_ACCEPT,
+        recruitmentAcceptPayload
+      );
+    }
   });
 
   // RECRUITMENT_ACCEPT handler
@@ -70,6 +79,12 @@ export default function applyBrokerServiceHandlers(
         payload,
         (iceCandidatePayload: any) => {
           socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
+        },
+        (recruitmentRequestPayload: any) => {
+          socket.emit(
+            BrokerServiceChannels.RECRUITMENT_REQUEST,
+            recruitmentRequestPayload
+          );
         },
         () => MastersHub.remove(payload.masterId)
       ).then((masterP2PConnection: MasterP2PConnection) => {
