@@ -14,7 +14,7 @@ export class InterconnectedNode {
       emitIceCandidateCallback: (payload: any) => void,
       disconnectionCallback: () => void
     ) => Promise<SlaveP2PConnection>,
-    private onIncomingConnectionHandler: (
+    private onRequestConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
       emitRecruitmentRequestCallback: (payload: any) => void,
@@ -24,7 +24,7 @@ export class InterconnectedNode {
     this.brokerServiceSocket = new BrokerServiceSocket(
       this.id,
       this.onRecruitmentAcceptHandler,
-      this.onIncomingConnectionHandler
+      this.onRequestConnectionHandler
     );
   }
 
