@@ -1,4 +1,6 @@
 export default interface P2PConnectionWrapper {
+  get operationId(): string;
+
   createOffer(): Promise<any>;
 
   setLocalDescription(sdp: any): Promise<void>;
