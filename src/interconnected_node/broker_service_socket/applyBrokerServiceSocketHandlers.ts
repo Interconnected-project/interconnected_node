@@ -33,7 +33,14 @@ export default function applyBrokerServiceSocketHandlers(
     builders
   );
 
-  // TODO
+  applyOnIceCandidateHandler(
+    brokerServiceSocket,
+    interconnectedNodeId,
+    slaveP2PConnectionsHub,
+    masterP2PConnectionsHub
+  );
+
+  // TODO missing master-side handlers
 }
 
 function applyOnRecruitmentBroadcastHandler(
@@ -125,6 +132,33 @@ function applyOnRequestConnectionHandler(
         BrokerServiceChannels.REQUEST_CONNECTION,
         'ERROR'
       );
+    }
+  );
+}
+
+function applyOnIceCandidateHandler(
+  brokerServiceSocket: Socket,
+  interconnectedNodeId: string,
+  slaveP2PConnectionsHub: SlaveP2PConnectionsHub,
+  masterP2PConnectionsHub: MasterP2PConnectionsHub
+): void {
+  brokerServiceSocket.on(
+    BrokerServiceChannels.ICE_CANDIDATE,
+    (payload: any) => {
+      if (
+        payload.candidate !== undefined &&
+        payload.toId === interconnectedNodeId
+      ) {
+        const masterP2P = masterP2PConnectionsHub.getBySlaveId(payload.fromId);
+        if (masterP2P !== undefined) {
+          masterP2P.addIceCandidate(payload.candidate);
+        } else {
+          const slaveP2P = slaveP2PConnectionsHub.getByMasterId(payload.fromId);
+          if (slaveP2P !== undefined) {
+            slaveP2P.addIceCandidate(payload.candidate);
+          }
+        }
+      }
     }
   );
 }
