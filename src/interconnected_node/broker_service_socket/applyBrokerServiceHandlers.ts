@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Socket } from 'socket.io-client';
+import MapReduceMasterJob from '../masters_hub/MapReduceMasterJob';
 import MasterP2PConnection from '../masters_hub/MasterP2PConnection';
 import MastersHub from '../masters_hub/MastersHub';
 import SlaveP2PConnection from '../slaves_hub/SlaveP2PConnection';
@@ -17,7 +18,10 @@ export default function applyBrokerServiceHandlers(
   onRequestConnectionHandler: (
     payload: any,
     emitIceCandidateCallback: (payload: any) => void,
-    emitRecruitmentRequestCallback: (payload: any) => void,
+    onMasterP2PMessage: (
+      msg: any,
+      masterP2PConnection: MasterP2PConnection
+    ) => void,
     disconnectionCallback: () => void
   ) => Promise<MasterP2PConnection>
 ): void {
@@ -80,12 +84,7 @@ export default function applyBrokerServiceHandlers(
         (iceCandidatePayload: any) => {
           socket.emit(BrokerServiceChannels.ICE_CANDIDATE, iceCandidatePayload);
         },
-        (recruitmentRequestPayload: any) => {
-          socket.emit(
-            BrokerServiceChannels.RECRUITMENT_REQUEST,
-            recruitmentRequestPayload
-          );
-        },
+        onMasterP2PMessage(socket),
         () => MastersHub.remove(payload.masterId)
       ).then((masterP2PConnection: MasterP2PConnection) => {
         MastersHub.add(masterP2PConnection);
@@ -117,4 +116,46 @@ export default function applyBrokerServiceHandlers(
       }
     }
   });
+}
+
+function onStartJobMessage(
+  payload: any,
+  masterP2PConnection: MasterP2PConnection,
+  brokerSocket: Socket
+): void {
+  switch (payload.name) {
+    case 'MAPREDUCE_MASTER':
+      masterP2PConnection.setJob(
+        new MapReduceMasterJob(
+          payload.params,
+          masterP2PConnection,
+          brokerSocket
+        )
+      );
+      masterP2PConnection.job?.start();
+      break;
+    default:
+      throw new Error('NO SUCH JOB HANDLER IMPLEMENTED: ' + payload.name);
+  }
+}
+
+function onMasterP2PMessage(
+  brokerSocket: Socket
+): (msg: any, masterP2PConnection: MasterP2PConnection) => void {
+  return (msg: any, masterP2PConnection: MasterP2PConnection): void => {
+    const convertedMsg = JSON.parse(msg);
+    switch (convertedMsg.channel) {
+      case 'START_JOB':
+        onStartJobMessage(
+          convertedMsg.payload,
+          masterP2PConnection,
+          brokerSocket
+        );
+        break;
+      default:
+        throw new Error(
+          'NO SUCH MESSAGE HANDLER IMPLEMENTED: ' + convertedMsg.channel
+        );
+    }
+  };
 }

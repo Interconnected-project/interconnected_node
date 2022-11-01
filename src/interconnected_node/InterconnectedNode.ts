@@ -17,7 +17,10 @@ export class InterconnectedNode {
     private onRequestConnectionHandler: (
       payload: any,
       emitIceCandidateCallback: (payload: any) => void,
-      emitRecruitmentRequestCallback: (payload: any) => void,
+      onMasterP2PMessage: (
+        msg: any,
+        masterP2PConnection: MasterP2PConnection
+      ) => void,
       disconnectionCallback: () => void
     ) => Promise<MasterP2PConnection>
   ) {
