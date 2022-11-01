@@ -14,4 +14,6 @@ export default interface P2PConnection {
   addIceCandidate(candidate: any): Promise<void>;
 
   sendMessage(msg: any): void;
+
+  close(): void;
 }
