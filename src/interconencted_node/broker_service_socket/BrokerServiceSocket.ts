@@ -60,4 +60,12 @@ export default class BrokerServiceSocket {
     }
     return this.socket.connected;
   }
+
+  get isContributing(): boolean {
+    if (this.socket === undefined) {
+      throw new Error('BrokerServiceSocket is not open');
+    }
+    // TODO check if there are running jobs
+    return false;
+  }
 }
