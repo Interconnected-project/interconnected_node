@@ -1,4 +1,4 @@
-export default interface P2PConnectionWrapper {
+export default interface P2PConnection {
   get operationId(): string;
 
   createOffer(): Promise<any>;
