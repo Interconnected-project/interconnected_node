@@ -21,6 +21,9 @@ export default function applyOnRequestConnectionHandler(
           builders.createNewSlaveP2PConnectionBuilder();
 
         const slaveP2PConnection = slaveConnectionBuilder
+          .setOperationId(payload.operationId)
+          .setMasterId(payload.masterId)
+          .setMasterRole(payload.masterRole)
           .setOnIceCandidateHandler((candidate: any) => {
             brokerServiceSocket.emit(BrokerServiceChannels.ICE_CANDIDATE, {
               fromId: interconnectedNodeId,

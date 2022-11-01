@@ -1,6 +1,12 @@
 import SlaveP2PConnection from '../connections/SlaveP2PConnection';
 
 export default interface SlaveP2PConnectionBuilder {
+  setMasterId(masterId: string): SlaveP2PConnectionBuilder;
+
+  setMasterRole(masterRole: string): SlaveP2PConnectionBuilder;
+
+  setOperationId(operationId: string): SlaveP2PConnectionBuilder;
+
   setOnIceCandidateHandler(
     onIceCandidateHandler: (candidate: any) => void
   ): SlaveP2PConnectionBuilder;
