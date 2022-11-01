@@ -25,6 +25,14 @@ export default function applyBrokerServiceSocketHandlers(
     interconnectedNodeId,
     slaveP2PConnectionsHub
   );
+
+  applyOnRequestConnectionHandler(
+    brokerServiceSocket,
+    interconnectedNodeId,
+    slaveP2PConnectionsHub,
+    builders
+  );
+
   // TODO
 }
 
@@ -52,7 +60,71 @@ function applyOnRecruitmentBroadcastHandler(
           BrokerServiceChannels.RECRUITMENT_ACCEPT,
           recruitmentAcceptPayload
         );
+      } else {
+        brokerServiceSocket.emit(
+          BrokerServiceChannels.RECRUITMENT_ACCEPT,
+          'ERROR'
+        );
       }
+    }
+  );
+}
+
+function applyOnRequestConnectionHandler(
+  brokerServiceSocket: Socket,
+  interconnectedNodeId: string,
+  slaveP2PConnectionsHub: SlaveP2PConnectionsHub,
+  builders: ClientSpecificP2PConnectionBuilders
+): void {
+  brokerServiceSocket.on(
+    BrokerServiceChannels.REQUEST_CONNECTION,
+    async (payload: any) => {
+      if (
+        payload.masterId !== interconnectedNodeId &&
+        slaveP2PConnectionsHub.getByMasterId(payload.masterId) === undefined
+        // TODO check that I'm not involved in a job that has the same operationId
+      ) {
+        const slaveConnectionBuilder =
+          builders.createNewSlaveP2PConnectionBuilder();
+
+        const slaveP2PConnection = slaveConnectionBuilder
+          .setOnIceCandidateHandler((candidate: any) => {
+            brokerServiceSocket.emit(BrokerServiceChannels.ICE_CANDIDATE, {
+              fromId: interconnectedNodeId,
+              fromRole: 'NODE',
+              toId: payload.masterId,
+              toRole: payload.masterRole,
+              candidate: candidate,
+            });
+          })
+          .setOnMessageHandler((msg: any) => {
+            //TODO implement actual message handlers
+            console.log(msg);
+          })
+          .setOnDisconnectionHandler(() => {
+            const slaveConnection = slaveP2PConnectionsHub.removeByMasterId(
+              payload.masterId
+            );
+            slaveConnection?.close();
+            //TODO stop connected jobs
+          })
+          .build();
+        if (slaveP2PConnectionsHub.add(slaveP2PConnection)) {
+          const offer = await slaveP2PConnection.createOffer();
+          await slaveP2PConnection.setLocalDescription(offer);
+          await slaveP2PConnection.setRemoteDescription(payload.sdp);
+          payload.sdp = offer;
+          brokerServiceSocket.emit(
+            BrokerServiceChannels.ANSWER_CONNECTION,
+            payload
+          );
+          return;
+        }
+      }
+      brokerServiceSocket.emit(
+        BrokerServiceChannels.REQUEST_CONNECTION,
+        'ERROR'
+      );
     }
   );
 }
