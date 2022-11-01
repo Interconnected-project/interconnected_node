@@ -25,12 +25,12 @@ export default class SlaveP2PConnectionsHub {
     });
   }
 
-  add(conenction: SlaveP2PConnection): boolean {
+  add(connection: SlaveP2PConnection): boolean {
     const notPresent =
-      this.connections.find((c) => c.masterId === conenction.masterId) ===
+      this.connections.find((c) => c.masterId === connection.masterId) ===
       undefined;
     if (notPresent) {
-      this.connections.push(conenction);
+      this.connections.push(connection);
       return true;
     }
     return false;
