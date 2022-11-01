@@ -7,8 +7,9 @@ import P2PConnection from './interconnected_node/p2p/connections/P2PConnection';
 import MasterP2PConnection from './interconnected_node/p2p/connections/MasterP2PConnection';
 import SlaveP2PConnection from './interconnected_node/p2p/connections/SlaveP2PConnection';
 
+export default InterconnectedNode;
+
 export {
-  InterconnectedNode,
   P2PConnectionBuilder,
   MasterP2PConnectionBuilder,
   SlaveP2PConnectionBuilder,
