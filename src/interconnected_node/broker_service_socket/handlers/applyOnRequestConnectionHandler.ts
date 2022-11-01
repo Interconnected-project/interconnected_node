@@ -46,10 +46,10 @@ export default function applyOnRequestConnectionHandler(
           })
           .build();
         if (slaveP2PConnectionsHub.add(slaveP2PConnection)) {
-          const offer = await slaveP2PConnection.createOffer();
-          await slaveP2PConnection.setLocalDescription(offer);
           await slaveP2PConnection.setRemoteDescription(payload.sdp);
-          payload.sdp = offer;
+          const answer = await slaveP2PConnection.createAnswer();
+          await slaveP2PConnection.setLocalDescription(answer);
+          payload.sdp = answer;
           brokerServiceSocket.emit(
             BrokerServiceChannels.ANSWER_CONNECTION,
             payload

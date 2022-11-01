@@ -5,4 +5,6 @@ export default interface SlaveP2PConnection extends P2PConnection {
   get masterId(): string;
 
   get masterRole(): string;
+
+  createAnswer(): Promise<any>;
 }

@@ -1,8 +1,6 @@
 export default interface P2PConnection {
   get operationId(): string;
 
-  createOffer(): Promise<any>;
-
   setLocalDescription(sdp: any): Promise<void>;
 
   get localDescription(): any | undefined;
