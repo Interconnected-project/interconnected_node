@@ -1,5 +1,5 @@
-import MasterP2PConnectionBuilder from './builders/MasterP2PConnectionBuilder';
-import SlaveP2PConnectionBuilder from './builders/SlaveP2PConnectionBuilder';
+import MasterP2PConnectionBuilder from './MasterP2PConnectionBuilder';
+import SlaveP2PConnectionBuilder from './SlaveP2PConnectionBuilder';
 
 export default interface ClientSpecificP2PConnectionBuilders {
   createNewMasterP2PConnectionBuilder(): MasterP2PConnectionBuilder;
