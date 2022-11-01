@@ -1,7 +1,17 @@
 import SlaveP2PConnection from '../connections/SlaveP2PConnection';
-import P2PConnectionBuilder from './P2PConnectionBuilder';
 
-export default interface SlaveP2PConnectionBuilder
-  extends P2PConnectionBuilder {
+export default interface SlaveP2PConnectionBuilder {
+  setOnIceCandidateHandler(
+    onIceCandidateHandler: (candidate: any) => void
+  ): SlaveP2PConnectionBuilder;
+
+  setOnMessageHandler(
+    onMessageHandler: (msg: any) => void
+  ): SlaveP2PConnectionBuilder;
+
+  setOnDisconnectionHandler(
+    onDisconnectionHandler: () => void
+  ): SlaveP2PConnectionBuilder;
+
   build(): SlaveP2PConnection;
 }

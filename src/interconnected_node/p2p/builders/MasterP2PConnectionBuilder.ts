@@ -1,7 +1,17 @@
 import MasterP2PConnection from '../connections/MasterP2PConnection';
-import P2PConnectionBuilder from './P2PConnectionBuilder';
 
-export default interface MasterP2PConnectionBuilder
-  extends P2PConnectionBuilder {
+export default interface MasterP2PConnectionBuilder {
+  setOnIceCandidateHandler(
+    onIceCandidateHandler: (candidate: any) => void
+  ): MasterP2PConnectionBuilder;
+
+  setOnMessageHandler(
+    onMessageHandler: (msg: any) => void
+  ): MasterP2PConnectionBuilder;
+
+  setOnDisconnectionHandler(
+    onDisconnectionHandler: () => void
+  ): MasterP2PConnectionBuilder;
+
   build(): MasterP2PConnection;
 }
