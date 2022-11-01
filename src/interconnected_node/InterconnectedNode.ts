@@ -1,7 +1,7 @@
 import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
 import ClientSpecificP2PConnectionBuilders from './p2p/builders/ClientSpecificP2PConnectionBuilders';
 
-export class InterconnectedNode {
+export default class InterconnectedNode {
   private brokerServiceSocket: BrokerServiceSocket;
 
   constructor(

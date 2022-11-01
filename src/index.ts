@@ -1,1 +1,3 @@
-export { InterconnectedNode } from './interconnected_node/InterconnectedNode';
+import InterconnectedNode from './interconnected_node/InterconnectedNode';
+
+export { InterconnectedNode };
