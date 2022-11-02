@@ -4,6 +4,7 @@ import ClientSpecificP2PConnectionBuilders from '../p2p/builders/ClientSpecificP
 import MasterP2PConnectionsHub from '../p2p/hubs/MasterP2PConnectionsHub';
 import SlaveP2PConnectionsHub from '../p2p/hubs/SlaveP2PConnectionsHub';
 import applyOnIceCandidateHandler from './handlers/applyOnIceCandidateHandler';
+import applyOnRecruitmentAcceptHandler from './handlers/applyOnRecruitmentAcceptHandler';
 import applyOnRecruitmentBroadcastHandler from './handlers/applyOnRecruitmentBroadcastHandler';
 import applyOnRequestConnectionHandler from './handlers/applyOnRequestConnectionHandler';
 
@@ -28,6 +29,13 @@ export default function applyBrokerServiceSocketHandlers(
     slaveP2PConnectionsHub
   );
 
+  applyOnRecruitmentAcceptHandler(
+    brokerServiceSocket,
+    interconnectedNodeId,
+    builders,
+    masterP2PConnectionsHub
+  );
+
   applyOnRequestConnectionHandler(
     brokerServiceSocket,
     interconnectedNodeId,
@@ -42,5 +50,5 @@ export default function applyBrokerServiceSocketHandlers(
     masterP2PConnectionsHub
   );
 
-  // TODO missing master-side handlers
+  // TODO complete master-side handlers
 }
