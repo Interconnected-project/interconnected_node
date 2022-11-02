@@ -28,7 +28,7 @@ export default function applyOnRecruitmentBroadcastHandler(
         );
       } else {
         brokerServiceSocket.emit(
-          BrokerServiceChannels.RECRUITMENT_ACCEPT,
+          BrokerServiceChannels.RECRUITMENT_BROADCAST,
           'ERROR'
         );
       }
