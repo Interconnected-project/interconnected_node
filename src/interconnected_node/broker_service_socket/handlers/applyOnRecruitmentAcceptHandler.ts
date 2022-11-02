@@ -42,7 +42,7 @@ export default function applyOnRecruitmentAcceptHandler(
         payload.sdp = offer;
         await masterP2PConnection.setLocalDescription(offer);
         brokerServiceSocket.emit(
-          BrokerServiceChannels.ANSWER_CONNECTION,
+          BrokerServiceChannels.REQUEST_CONNECTION,
           payload
         );
       } else {
