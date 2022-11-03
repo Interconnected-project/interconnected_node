@@ -29,7 +29,8 @@ export default function applyBrokerServiceSocketHandlers(
   applyOnRecruitmentBroadcastHandler(
     brokerServiceSocket,
     interconnectedNodeId,
-    slaveP2PConnectionsHub
+    slaveP2PConnectionsHub,
+    jobsRepository
   );
 
   applyOnRecruitmentAcceptHandler(
