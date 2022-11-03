@@ -14,9 +14,9 @@ export default function applyOnRecruitmentBroadcastHandler(
     (payload: any) => {
       // TODO check requirements
       if (
-        (payload.masterId !== interconnectedNodeId &&
-          slaveP2PConnectionsHub.getByMasterId(payload.masterId) === undefined,
-        jobsRepository.get(payload.operationId) === undefined)
+        payload.masterId !== interconnectedNodeId &&
+        slaveP2PConnectionsHub.getByMasterId(payload.masterId) === undefined &&
+        jobsRepository.get(payload.operationId) === undefined
       ) {
         const recruitmentAcceptPayload = {
           masterId: payload.masterId,
