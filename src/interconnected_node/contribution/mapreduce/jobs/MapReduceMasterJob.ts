@@ -94,9 +94,20 @@ export default class MapReduceMasterJob implements Job {
     this.reduceWorkers.push(masterP2PConnection);
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.RECRUITMENT_COMPLETED;
+      console.log('RECRUITMENT COMPLETED');
     }
     return new Promise<void>((resolve) => {
-      // TODO send reduce job
+      masterP2PConnection.sendMessage(
+        JSON.stringify({
+          channel: 'START_JOB',
+          payload: {
+            name: 'REDUCE_WORKER',
+            params: {
+              reduceFunction: this.reduceFunction,
+            },
+          },
+        })
+      );
       resolve();
     });
   }

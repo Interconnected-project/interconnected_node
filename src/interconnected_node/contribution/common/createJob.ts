@@ -2,6 +2,7 @@ import { Socket } from 'socket.io-client';
 import SlaveP2PConnection from '../../p2p/connections/SlaveP2PConnection';
 import MapReduceMasterJob from '../mapreduce/jobs/MapReduceMasterJob';
 import MapWorkerJob from '../mapreduce/jobs/MapWorkerJob';
+import ReduceWorkerJob from '../mapreduce/jobs/ReduceWorkerJob';
 import Job from './Job';
 
 export default function createJob(
@@ -20,6 +21,8 @@ export default function createJob(
       );
     case 'MAP_WORKER':
       return new MapWorkerJob(payload.params, slaveP2PConnection);
+    case 'REDUCE_WORKER':
+      return new ReduceWorkerJob(payload.params, slaveP2PConnection);
     default:
       throw new Error('Unrecognized job name in received START_JOB message');
   }
