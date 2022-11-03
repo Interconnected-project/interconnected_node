@@ -15,6 +15,7 @@ export default class MapReduceMasterJob implements Job {
   private mapWorkersToReach: number;
   private mapWorkers: Array<MasterP2PConnection>;
   private reduceWorkersToReach: number;
+  private reduceWorkers: Array<MasterP2PConnection>;
   private mapFunction: string;
   private reduceFunction: string;
 
@@ -28,6 +29,7 @@ export default class MapReduceMasterJob implements Job {
     this.mapWorkersToReach = params.mapWorkers;
     this.mapWorkers = new Array<MasterP2PConnection>();
     this.reduceWorkersToReach = params.reduceWorkers;
+    this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
     this.reduceFunction = params.reduceFunction;
   }
@@ -48,38 +50,59 @@ export default class MapReduceMasterJob implements Job {
     });
   }
 
+  private onNewMapWorker(
+    masterP2PConnection: MasterP2PConnection
+  ): Promise<void> {
+    this.mapWorkers.push(masterP2PConnection);
+    if (this.mapWorkers.length === this.mapWorkersToReach) {
+      this.status = Status.REDUCE_WORKERS_RECRUITMENT;
+      const switchToReduceWorkersRecruitmentInterval = setInterval(() => {
+        if (this.mapWorkers.every((mw) => mw.remoteDescription !== undefined)) {
+          this.brokerServiceSocket.emit(
+            BrokerServiceChannels.RECRUITMENT_REQUEST,
+            {
+              operationId: this.operationId,
+              nodesToReach: this.reduceWorkersToReach,
+              masterId: this.interconnectedNodeId,
+              masterRole: 'NODE',
+            }
+          );
+          clearInterval(switchToReduceWorkersRecruitmentInterval);
+        }
+      }, 100);
+    }
+    return new Promise<void>((resolve) => {
+      // TODO send map job
+      resolve();
+    });
+  }
+
+  private onNewReduceWorker(
+    masterP2PConnection: MasterP2PConnection
+  ): Promise<void> {
+    this.reduceWorkers.push(masterP2PConnection);
+    if (this.mapWorkers.length === this.mapWorkersToReach) {
+      this.status = Status.RECRUITMENT_COMPLETED;
+    }
+    return new Promise<void>((resolve) => {
+      // TODO send reduce job
+      resolve();
+    });
+  }
+
   notifyNewMasterP2PConnection(
     masterP2PConnection: MasterP2PConnection
   ): Promise<void> {
     if (masterP2PConnection.operationId === this.operationId) {
       switch (this.status) {
         case Status.MAP_WORKERS_RECRUITMENT:
-          this.mapWorkers.push(masterP2PConnection);
-          if (this.mapWorkers.length === this.mapWorkersToReach) {
-            this.status = Status.REDUCE_WORKERS_RECRUITMENT;
-            const switchToReduceWorkersRecruitmentInterval = setInterval(() => {
-              if (
-                this.mapWorkers.every(
-                  (mw) => mw.remoteDescription !== undefined
-                )
-              ) {
-                this.brokerServiceSocket.emit(
-                  BrokerServiceChannels.RECRUITMENT_REQUEST,
-                  {
-                    operationId: this.operationId,
-                    nodesToReach: this.reduceWorkersToReach,
-                    masterId: this.interconnectedNodeId,
-                    masterRole: 'NODE',
-                  }
-                );
-                clearInterval(switchToReduceWorkersRecruitmentInterval);
-              }
-            }, 100);
-          }
-          return new Promise<void>((resolve) => {
-            // TODO send map job
-            resolve();
-          });
+          return this.onNewMapWorker(masterP2PConnection);
+        case Status.REDUCE_WORKERS_RECRUITMENT:
+          return this.onNewReduceWorker(masterP2PConnection);
+        default:
+          throw new Error(
+            'Received new worker after MapReduce recruitment completed'
+          );
       }
     }
     return new Promise<void>((resolve) => resolve());
