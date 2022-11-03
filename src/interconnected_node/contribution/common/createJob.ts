@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client';
 import SlaveP2PConnection from '../../p2p/connections/SlaveP2PConnection';
-import createMapReduceMasterJob from '../mapreduce/jobs_creation/createMapReduceMasterJob';
+import MapReduceMasterJob from '../mapreduce/jobs/MapReduceMasterJob';
 import Job from './Job';
 
 export default function createJob(
@@ -11,7 +11,7 @@ export default function createJob(
 ): Job {
   switch (payload.name) {
     case 'MAPREDUCE_MASTER':
-      return createMapReduceMasterJob(
+      return new MapReduceMasterJob(
         payload.params,
         slaveP2PConnection,
         brokerServiceSocket,
