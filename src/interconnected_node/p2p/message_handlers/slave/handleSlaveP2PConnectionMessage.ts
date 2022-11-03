@@ -10,11 +10,11 @@ export default function handleSlaveP2PConnectionMessage(
   interconnectedNodeId: string,
   jobsRepository: JobsRepository
 ) {
-  console.log('Received message ' + msg);
-  switch (msg.channel) {
+  const parsedMsg = JSON.parse(msg);
+  switch (parsedMsg.channel) {
     case 'START_JOB':
       onSlaveStartJobMessageHandler(
-        msg.payload,
+        parsedMsg.payload,
         slaveP2PConnection,
         brokerServiceSocket,
         interconnectedNodeId,
