@@ -1,3 +1,4 @@
+import MasterP2PConnection from '../../p2p/connections/MasterP2PConnection';
 import Job from './Job';
 
 export default class JobsRepository {
@@ -12,6 +13,12 @@ export default class JobsRepository {
       this.jobs.push(job);
       return true;
     }
+  }
+
+  notifyNewMasterP2PConnection(masterP2PConnection: MasterP2PConnection): void {
+    this.jobs.forEach((j) =>
+      j.notifyNewMasterP2PConnection(masterP2PConnection)
+    );
   }
 
   remove(operationId: string): Job | undefined {

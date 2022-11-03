@@ -1,3 +1,4 @@
+import MasterP2PConnection from '../../p2p/connections/MasterP2PConnection';
 import Task from './Task';
 
 export default interface Job {
@@ -10,4 +11,8 @@ export default interface Job {
   enqueueTask(task: Task): Promise<boolean>;
 
   suppressTask(id: string): Promise<void>;
+
+  notifyNewMasterP2PConnection(
+    masterP2PConnection: MasterP2PConnection
+  ): Promise<void>;
 }

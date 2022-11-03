@@ -43,6 +43,7 @@ export default function applyOnRecruitmentAcceptHandler(
         const offer = await masterP2PConnection.createOffer();
         payload.sdp = offer;
         await masterP2PConnection.setLocalDescription(offer);
+        jobsRepository.notifyNewMasterP2PConnection(masterP2PConnection);
         brokerServiceSocket.emit(
           BrokerServiceChannels.REQUEST_CONNECTION,
           payload
