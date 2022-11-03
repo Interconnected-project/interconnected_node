@@ -2,6 +2,7 @@ import { Socket } from 'socket.io-client';
 import JobsRepository from '../../contribution/common/JobsRepository';
 import ClientSpecificP2PConnectionBuilders from '../../p2p/builders/ClientSpecificP2PConnectionBuilders';
 import SlaveP2PConnectionsHub from '../../p2p/hubs/SlaveP2PConnectionsHub';
+import handleSlaveP2PConnectionMessage from '../../p2p/message_handlers/slave/handleSlaveP2PConnectionMessage';
 import BrokerServiceChannels from '../BrokerServiceChannels';
 
 export default function applyOnRequestConnectionHandler(
@@ -36,8 +37,12 @@ export default function applyOnRequestConnectionHandler(
             });
           })
           .setOnMessageHandler((msg: any) => {
-            //TODO implement actual message handlers
-            console.log(msg);
+            handleSlaveP2PConnectionMessage(
+              msg,
+              brokerServiceSocket,
+              interconnectedNodeId,
+              jobsRepository
+            );
           })
           .setOnDisconnectionHandler(() => {
             const slaveConnection = slaveP2PConnectionsHub.removeByMasterId(
