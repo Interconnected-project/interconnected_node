@@ -10,6 +10,7 @@ enum Status {
   REDUCE_WORKERS_RECRUITMENT,
   RECRUITMENT_COMPLETED,
 }
+
 export default class MapReduceMasterJob implements Job {
   private status: Status;
   private mapWorkersToReach: number;
