@@ -73,7 +73,17 @@ export default class MapReduceMasterJob implements Job {
       }, 100);
     }
     return new Promise<void>((resolve) => {
-      // TODO send map job
+      masterP2PConnection.sendMessage(
+        JSON.stringify({
+          channel: 'START_JOB',
+          payload: {
+            name: 'MAP_WORKER',
+            params: {
+              mapFunction: this.mapFunction,
+            },
+          },
+        })
+      );
       resolve();
     });
   }
