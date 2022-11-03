@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io-client';
+import JobsRepository from '../../contribution/common/JobsRepository';
 import ClientSpecificP2PConnectionBuilders from '../../p2p/builders/ClientSpecificP2PConnectionBuilders';
 import MasterP2PConnectionsHub from '../../p2p/hubs/MasterP2PConnectionsHub';
 import BrokerServiceChannels from '../BrokerServiceChannels';
@@ -7,7 +8,8 @@ export default function applyOnRecruitmentAcceptHandler(
   brokerServiceSocket: Socket,
   interconnectedNodeId: string,
   builders: ClientSpecificP2PConnectionBuilders,
-  masterP2PConnectionsHub: MasterP2PConnectionsHub
+  masterP2PConnectionsHub: MasterP2PConnectionsHub,
+  jobsRepository: JobsRepository
 ): void {
   brokerServiceSocket.on(
     BrokerServiceChannels.RECRUITMENT_ACCEPT,
