@@ -16,8 +16,8 @@ export default function applyOnRequestConnectionHandler(
     async (payload: any) => {
       if (
         payload.masterId !== interconnectedNodeId &&
-        slaveP2PConnectionsHub.getByMasterId(payload.masterId) === undefined
-        // TODO check that I'm not involved in a job that has the same operationId
+        slaveP2PConnectionsHub.getByMasterId(payload.masterId) === undefined &&
+        jobsRepository.get(payload.operationId) === undefined
       ) {
         const slaveConnectionBuilder =
           builders.createNewSlaveP2PConnectionBuilder();
@@ -43,8 +43,10 @@ export default function applyOnRequestConnectionHandler(
             const slaveConnection = slaveP2PConnectionsHub.removeByMasterId(
               payload.masterId
             );
-            slaveConnection?.close();
-            //TODO stop connected jobs
+            if (slaveConnection !== undefined) {
+              jobsRepository.remove(payload.operationId)?.stop();
+              slaveConnection.close();
+            }
           })
           .build();
         if (slaveP2PConnectionsHub.add(slaveP2PConnection)) {
