@@ -39,6 +39,7 @@ export default function applyOnRequestConnectionHandler(
           .setOnMessageHandler((msg: any) => {
             handleSlaveP2PConnectionMessage(
               msg,
+              slaveP2PConnection,
               brokerServiceSocket,
               interconnectedNodeId,
               jobsRepository
