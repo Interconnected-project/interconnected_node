@@ -36,14 +36,16 @@ export default function applyBrokerServiceSocketHandlers(
     brokerServiceSocket,
     interconnectedNodeId,
     builders,
-    masterP2PConnectionsHub
+    masterP2PConnectionsHub,
+    jobsRepository
   );
 
   applyOnRequestConnectionHandler(
     brokerServiceSocket,
     interconnectedNodeId,
     slaveP2PConnectionsHub,
-    builders
+    builders,
+    jobsRepository
   );
 
   applyOnAnswerConnectionHandler(brokerServiceSocket, masterP2PConnectionsHub);
