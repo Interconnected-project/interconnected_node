@@ -2,7 +2,6 @@ import { Socket } from 'socket.io-client';
 import SlaveP2PConnection from '../../p2p/connections/SlaveP2PConnection';
 import createMapReduceMasterJob from '../mapreduce/jobs_creation/createMapReduceMasterJob';
 import Job from './Job';
-import JobsRepository from './JobsRepository';
 
 export default function createJob(
   payload: any,
