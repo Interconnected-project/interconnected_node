@@ -29,4 +29,8 @@ export default class JobsRepository {
   get(operationId: string): Job | undefined {
     return this.jobs.find((j) => j.operationId === operationId);
   }
+
+  get isContributing(): boolean {
+    return this.jobs.length > 0;
+  }
 }
