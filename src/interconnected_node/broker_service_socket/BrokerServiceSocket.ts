@@ -1,4 +1,5 @@
 import { io, Socket } from 'socket.io-client';
+import JobsRepository from '../contribution/common/JobsRepository';
 import ClientSpecificP2PConnectionBuilders from '../p2p/builders/ClientSpecificP2PConnectionBuilders';
 import MasterP2PConnectionsHub from '../p2p/hubs/MasterP2PConnectionsHub';
 import SlaveP2PConnectionsHub from '../p2p/hubs/SlaveP2PConnectionsHub';
@@ -8,6 +9,7 @@ export default class BrokerServiceSocket {
   private socket: Socket | undefined;
   private slaveP2PConnectionsHub: SlaveP2PConnectionsHub;
   private masterP2PConnectionsHub: MasterP2PConnectionsHub;
+  private jobsRepository: JobsRepository;
 
   constructor(
     private interconnectedNodeId: string,
@@ -16,6 +18,7 @@ export default class BrokerServiceSocket {
     this.socket = undefined;
     this.slaveP2PConnectionsHub = new SlaveP2PConnectionsHub();
     this.masterP2PConnectionsHub = new MasterP2PConnectionsHub();
+    this.jobsRepository = new JobsRepository();
   }
 
   open(brokerServiceAddress: string): void {
@@ -34,6 +37,7 @@ export default class BrokerServiceSocket {
       this.interconnectedNodeId,
       this.slaveP2PConnectionsHub,
       this.masterP2PConnectionsHub,
+      this.jobsRepository,
       this.builders
     );
     this.socket.connect();
@@ -44,9 +48,11 @@ export default class BrokerServiceSocket {
       throw new Error('BrokerServiceSocket is not open');
     }
     this.socket.disconnect();
-    this.slaveP2PConnectionsHub.flush().forEach((s) => s.close());
+    this.slaveP2PConnectionsHub.flush().forEach((s) => {
+      this.jobsRepository.remove(s.operationId)?.stop();
+      s.close();
+    });
     this.masterP2PConnectionsHub.flush().forEach((m) => m.close());
-    // TODO stop Jobs
     this.socket = undefined;
   }
 
@@ -65,7 +71,6 @@ export default class BrokerServiceSocket {
     if (this.socket === undefined) {
       throw new Error('BrokerServiceSocket is not open');
     }
-    // TODO check if there are running jobs
-    return false;
+    return this.jobsRepository.isContributing;
   }
 }
