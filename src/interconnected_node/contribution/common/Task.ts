@@ -6,6 +6,4 @@ export default interface Task {
     onCompletionCallback: () => void,
     onErrorCallback: () => void
   ): Promise<void>;
-
-  suppress(): Promise<void>;
 }
