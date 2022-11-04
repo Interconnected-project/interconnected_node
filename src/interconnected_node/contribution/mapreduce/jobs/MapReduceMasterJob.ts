@@ -13,8 +13,10 @@ enum Status {
 
 export default class MapReduceMasterJob implements Job {
   private status: Status;
+  private currentUsedMapWorkerIndex: number;
   private mapWorkersToReach: number;
   private mapWorkers: Array<MasterP2PConnection>;
+  private mapWorkersPerRegion: number;
   private reduceWorkersToReach: number;
   private reduceWorkers: Array<MasterP2PConnection>;
   private mapFunction: string;
@@ -29,12 +31,18 @@ export default class MapReduceMasterJob implements Job {
   ) {
     this.status = Status.MAP_WORKERS_RECRUITMENT;
     this.mapWorkersToReach = params.mapWorkers;
+    this.currentUsedMapWorkerIndex = Math.floor(
+      Math.random() * this.mapWorkersToReach
+    );
     this.mapWorkers = new Array<MasterP2PConnection>();
     this.reduceWorkersToReach = params.reduceWorkers;
     this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
     this.reduceFunction = params.reduceFunction;
     this.enqueuedTasks = new Array();
+    this.mapWorkersPerRegion = Math.ceil(
+      this.mapWorkersToReach / this.reduceWorkersToReach
+    );
   }
 
   get operationId(): string {
@@ -143,7 +151,44 @@ export default class MapReduceMasterJob implements Job {
   }
 
   private executeSplit(task: Task): void {
-    // TODO
+    const mwUsed = new Array<MasterP2PConnection>();
+    const remainingMWsFromIndex =
+      this.mapWorkers.length - this.currentUsedMapWorkerIndex;
+    if (remainingMWsFromIndex >= this.mapWorkersPerRegion) {
+      mwUsed.push(
+        ...this.mapWorkers.slice(
+          this.currentUsedMapWorkerIndex,
+          this.mapWorkersPerRegion
+        )
+      );
+    } else {
+      mwUsed.push(
+        ...this.mapWorkers.slice(
+          this.currentUsedMapWorkerIndex,
+          remainingMWsFromIndex
+        )
+      );
+      mwUsed.push(
+        ...this.mapWorkers.slice(
+          0,
+          this.mapWorkersPerRegion - remainingMWsFromIndex
+        )
+      );
+    }
+    this.currentUsedMapWorkerIndex += this.mapWorkersPerRegion;
+    if (this.currentUsedMapWorkerIndex >= this.mapWorkers.length) {
+      this.currentUsedMapWorkerIndex =
+        this.mapWorkersPerRegion - remainingMWsFromIndex;
+    }
+    task.execute(
+      { mapWorkers: mwUsed },
+      () => {
+        console.log('MASTER COMPLETED SLICE TASK');
+      },
+      () => {
+        'MASTER HAD AN ERROR COMPLETING SLICE TASK';
+      }
+    );
   }
 
   enqueueTask(task: Task): Promise<boolean> {
