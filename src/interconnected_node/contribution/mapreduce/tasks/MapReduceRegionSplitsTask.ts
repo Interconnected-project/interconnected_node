@@ -18,6 +18,9 @@ export default class MapReduceRegionSplitsTask implements Task {
     return new Promise<void>((resolve) => {
       try {
         const mapWorkers: MasterP2PConnection[] = jobParams.mapWorkers;
+        console.log(
+          'SPLIT TASK map workers length' + mapWorkers.length.toString()
+        );
         const roundedUpSplitsPerWorker = Math.ceil(
           this.splits.length / mapWorkers.length
         );

@@ -28,8 +28,9 @@ export default function applyOnRecruitmentAcceptHandler(
           });
         })
         .setOnMessageHandler((msg: any) => {
-          // TODO implement actual handler
-          console.log('Slave sent this message: ' + msg);
+          jobsRepository
+            .get(payload.operationId)
+            ?.notifyNewMessage(masterP2PConnection, msg);
         })
         .setOnDisconnectionHandler(() => {
           const masterConnection = masterP2PConnectionsHub.getBySlaveId(

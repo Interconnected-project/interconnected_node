@@ -16,6 +16,8 @@ export default class MapReduceMasterJob implements Job {
   private currentUsedMapWorkerIndex: number;
   private mapWorkersToReach: number;
   private mapWorkers: Array<MasterP2PConnection>;
+  private mapWorkersJobAcks: Map<string, boolean>;
+  private mapWorkersJobGuard: boolean;
   private mapWorkersPerRegion: number;
   private reduceWorkersToReach: number;
   private reduceWorkers: Array<MasterP2PConnection>;
@@ -35,6 +37,8 @@ export default class MapReduceMasterJob implements Job {
       Math.random() * this.mapWorkersToReach
     );
     this.mapWorkers = new Array<MasterP2PConnection>();
+    this.mapWorkersJobAcks = new Map();
+    this.mapWorkersJobGuard = false;
     this.reduceWorkersToReach = params.reduceWorkers;
     this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
@@ -65,8 +69,10 @@ export default class MapReduceMasterJob implements Job {
     masterP2PConnection: MasterP2PConnection
   ): Promise<void> {
     this.mapWorkers.push(masterP2PConnection);
+    this.mapWorkersJobAcks.set(masterP2PConnection.slaveId, false);
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.REDUCE_WORKERS_RECRUITMENT;
+      console.log('MAP WORKERS RECRUITED');
       const switchToReduceWorkersRecruitmentInterval = setInterval(() => {
         if (this.mapWorkers.every((mw) => mw.remoteDescription !== undefined)) {
           this.brokerServiceSocket.emit(
@@ -78,6 +84,12 @@ export default class MapReduceMasterJob implements Job {
               masterRole: 'NODE',
             }
           );
+          while (this.enqueuedTasks.length > 0) {
+            const poppedTask = this.enqueuedTasks.pop();
+            if (poppedTask !== undefined) {
+              this.executeSplit(poppedTask);
+            }
+          }
           clearInterval(switchToReduceWorkersRecruitmentInterval);
         }
       }, 100);
@@ -105,12 +117,6 @@ export default class MapReduceMasterJob implements Job {
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.RECRUITMENT_COMPLETED;
       console.log('RECRUITMENT COMPLETED');
-      while (this.enqueuedTasks.length > 0) {
-        const poppedTask = this.enqueuedTasks.pop();
-        if (poppedTask !== undefined) {
-          this.executeSplit(poppedTask);
-        }
-      }
     }
     return new Promise<void>((resolve) => {
       masterP2PConnection.sendMessage(
@@ -154,7 +160,12 @@ export default class MapReduceMasterJob implements Job {
     const mwUsed = new Array<MasterP2PConnection>();
     const remainingMWsFromIndex =
       this.mapWorkers.length - this.currentUsedMapWorkerIndex;
+    console.log('length ' + this.mapWorkers.length.toString());
+    console.log('index ' + this.currentUsedMapWorkerIndex.toString());
+    console.log('remaining ' + remainingMWsFromIndex.toString());
+    console.log('per region ' + this.mapWorkersPerRegion);
     if (remainingMWsFromIndex >= this.mapWorkersPerRegion) {
+      console.log('A');
       mwUsed.push(
         ...this.mapWorkers.slice(
           this.currentUsedMapWorkerIndex,
@@ -162,6 +173,7 @@ export default class MapReduceMasterJob implements Job {
         )
       );
     } else {
+      console.log('B');
       mwUsed.push(
         ...this.mapWorkers.slice(
           this.currentUsedMapWorkerIndex,
@@ -175,28 +187,58 @@ export default class MapReduceMasterJob implements Job {
         )
       );
     }
+    console.log(mwUsed.length.toString());
     this.currentUsedMapWorkerIndex += this.mapWorkersPerRegion;
     if (this.currentUsedMapWorkerIndex >= this.mapWorkers.length) {
       this.currentUsedMapWorkerIndex =
         this.mapWorkersPerRegion - remainingMWsFromIndex;
     }
-    task.execute(
-      { mapWorkers: mwUsed },
-      () => {
-        console.log('MASTER COMPLETED SLICE TASK');
-      },
-      () => {
-        'MASTER HAD AN ERROR COMPLETING SLICE TASK';
+    const interval = setInterval(() => {
+      if (this.mapWorkersJobGuard === true) {
+        clearInterval(interval);
+        task.execute(
+          { mapWorkers: mwUsed },
+          () => {
+            console.log('MASTER COMPLETED SLICE TASK');
+          },
+          () => {
+            'MASTER HAD AN ERROR COMPLETING SLICE TASK';
+          }
+        );
       }
-    );
+    }, 100);
   }
 
   enqueueTask(task: Task): Promise<boolean> {
     if (this.status === Status.MAP_WORKERS_RECRUITMENT) {
+      console.log('RECEIVED TASK, BUT ENQUEUED IT');
       this.enqueuedTasks.push(task);
     } else {
       this.executeSplit(task);
     }
     return new Promise<boolean>((resolve) => resolve(true));
+  }
+
+  notifyNewMessage(
+    masterP2PConnection: MasterP2PConnection,
+    msg: any
+  ): Promise<void> {
+    const parsedMsg = JSON.parse(msg);
+    if (
+      parsedMsg.channel === 'START_JOB' &&
+      parsedMsg.payload.name === 'MAP_WORKER' &&
+      parsedMsg.payload.result === 'ACK'
+    ) {
+      this.mapWorkersJobAcks.set(masterP2PConnection.slaveId, true);
+      if (
+        this.mapWorkersJobAcks.size === this.mapWorkersToReach &&
+        Array.from(this.mapWorkersJobAcks.values()).every((s) => {
+          return s === true;
+        })
+      ) {
+        this.mapWorkersJobGuard = true;
+      }
+    }
+    return new Promise<void>((resolve) => resolve());
   }
 }

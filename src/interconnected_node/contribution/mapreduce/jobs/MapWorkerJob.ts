@@ -44,4 +44,11 @@ export default class MapWorkerJob implements Job {
       resolve();
     });
   }
+
+  notifyNewMessage(
+    masterP2PConnection: MasterP2PConnection,
+    msg: any
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }

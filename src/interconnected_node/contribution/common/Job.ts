@@ -13,4 +13,9 @@ export default interface Job {
   notifyNewMasterP2PConnection(
     masterP2PConnection: MasterP2PConnection
   ): Promise<void>;
+
+  notifyNewMessage(
+    masterP2PConnection: MasterP2PConnection,
+    msg: any
+  ): Promise<void>;
 }

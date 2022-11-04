@@ -41,4 +41,11 @@ export default class ReduceWorkerJob implements Job {
       resolve();
     });
   }
+
+  notifyNewMessage(
+    masterP2PConnection: MasterP2PConnection,
+    msg: any
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }

@@ -12,6 +12,7 @@ export default function handleSlaveP2PConnectionMessage(
   jobsRepository: JobsRepository
 ) {
   const parsedMsg = JSON.parse(msg);
+  console.log('channel: ' + parsedMsg.channel);
   switch (parsedMsg.channel) {
     case 'START_JOB':
       onSlaveStartJobMessageHandler(
@@ -28,6 +29,7 @@ export default function handleSlaveP2PConnectionMessage(
         slaveP2PConnection,
         jobsRepository
       );
+      break;
     default:
       throw new Error('Unrecognized P2P message received');
   }

@@ -20,6 +20,7 @@ export default function onSlaveStartJobMessageHandler(
   const response = {
     channel: 'START_JOB',
     payload: {
+      name: payload.name,
       result: 'ACK',
     },
   };
