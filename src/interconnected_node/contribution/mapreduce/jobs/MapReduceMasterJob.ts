@@ -154,8 +154,4 @@ export default class MapReduceMasterJob implements Job {
     }
     return new Promise<boolean>((resolve) => resolve(true));
   }
-
-  suppressTask(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
 }

@@ -10,8 +10,6 @@ export default interface Job {
 
   enqueueTask(task: Task): Promise<boolean>;
 
-  suppressTask(id: string): Promise<void>;
-
   notifyNewMasterP2PConnection(
     masterP2PConnection: MasterP2PConnection
   ): Promise<void>;
