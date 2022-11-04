@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io-client';
 import JobsRepository from '../../../contribution/common/JobsRepository';
 import SlaveP2PConnection from '../../connections/SlaveP2PConnection';
+import onExecuteTaskMessageHandler from './handlers/onExecuteTaskMessageHandler';
 import onSlaveStartJobMessageHandler from './handlers/onSlaveStartJobMessageHandler';
 
 export default function handleSlaveP2PConnectionMessage(
@@ -21,6 +22,14 @@ export default function handleSlaveP2PConnectionMessage(
         jobsRepository
       );
       break;
+    case 'EXECUTE_TASK':
+      onExecuteTaskMessageHandler(
+        parsedMsg.payload,
+        slaveP2PConnection,
+        brokerServiceSocket,
+        interconnectedNodeId,
+        jobsRepository
+      );
     default:
       throw new Error('Unrecognized P2P message received');
   }
