@@ -19,6 +19,7 @@ export default class MapReduceMasterJob implements Job {
   private reduceWorkers: Array<MasterP2PConnection>;
   private mapFunction: string;
   private reduceFunction: string;
+  private enqueuedTasks: Array<Task>;
 
   constructor(
     params: any,
@@ -33,6 +34,7 @@ export default class MapReduceMasterJob implements Job {
     this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
     this.reduceFunction = params.reduceFunction;
+    this.enqueuedTasks = new Array();
   }
 
   get operationId(): string {
@@ -95,6 +97,12 @@ export default class MapReduceMasterJob implements Job {
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.RECRUITMENT_COMPLETED;
       console.log('RECRUITMENT COMPLETED');
+      while (this.enqueuedTasks.length > 0) {
+        const poppedTask = this.enqueuedTasks.pop();
+        if (poppedTask !== undefined) {
+          this.executeSplit(poppedTask);
+        }
+      }
     }
     return new Promise<void>((resolve) => {
       masterP2PConnection.sendMessage(
@@ -134,8 +142,17 @@ export default class MapReduceMasterJob implements Job {
     throw new Error('Method not implemented.');
   }
 
+  private executeSplit(task: Task): void {
+    // TODO
+  }
+
   enqueueTask(task: Task): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    if (this.status === Status.MAP_WORKERS_RECRUITMENT) {
+      this.enqueuedTasks.push(task);
+    } else {
+      this.executeSplit(task);
+    }
+    return new Promise<boolean>((resolve) => resolve(true));
   }
 
   suppressTask(id: string): Promise<void> {
