@@ -33,10 +33,6 @@ export default class ReduceWorkerJob implements Job {
     throw new Error('Method not implemented.');
   }
 
-  suppressTask(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
   notifyNewMasterP2PConnection(
     masterP2PConnection: MasterP2PConnection
   ): Promise<void> {

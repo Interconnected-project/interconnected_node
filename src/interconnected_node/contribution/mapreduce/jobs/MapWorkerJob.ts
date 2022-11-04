@@ -36,10 +36,6 @@ export default class MapWorkerJob implements Job {
     });
   }
 
-  suppressTask(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
   notifyNewMasterP2PConnection(
     masterP2PConnection: MasterP2PConnection
   ): Promise<void> {
