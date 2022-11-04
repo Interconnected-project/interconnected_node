@@ -1,12 +1,13 @@
-import { Socket } from 'socket.io-client';
-import SlaveP2PConnection from '../../p2p/connections/SlaveP2PConnection';
+import MapReduceRegionSplitsTask from '../mapreduce/tasks/MapReduceRegionSplitsTask';
 import Task from './Task';
 
-export default function createTask(
-  payload: any,
-  slaveP2PConnection: SlaveP2PConnection,
-  brokerServiceSocket: Socket,
-  interconnectedNodeId: string
-): Task {
-  throw new Error('TODO implement createTask');
+export default function createTask(payload: any): Task {
+  switch (payload.name) {
+    case 'MAPREDUCE_REGION_SPLITS':
+      return new MapReduceRegionSplitsTask(payload.params);
+    default:
+      throw new Error(
+        'Unrecognized task name in received EXECUTE_TASK message'
+      );
+  }
 }

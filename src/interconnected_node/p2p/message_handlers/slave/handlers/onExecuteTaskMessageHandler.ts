@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io-client';
 import createTask from '../../../../contribution/common/createTask';
 import JobsRepository from '../../../../contribution/common/JobsRepository';
 import Task from '../../../../contribution/common/Task';
@@ -7,16 +6,9 @@ import SlaveP2PConnection from '../../../connections/SlaveP2PConnection';
 export default function onExecuteTaskMessageHandler(
   payload: any,
   slaveP2PConnection: SlaveP2PConnection,
-  brokerServiceSocket: Socket,
-  interconnectedNodeId: string,
   jobsRepository: JobsRepository
 ): void {
-  let task: Task = createTask(
-    payload,
-    slaveP2PConnection,
-    brokerServiceSocket,
-    interconnectedNodeId
-  );
+  let task: Task = createTask(payload);
   const response = {
     channel: 'EXECUTE_TASK',
     payload: {

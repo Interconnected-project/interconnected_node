@@ -26,8 +26,6 @@ export default function handleSlaveP2PConnectionMessage(
       onExecuteTaskMessageHandler(
         parsedMsg.payload,
         slaveP2PConnection,
-        brokerServiceSocket,
-        interconnectedNodeId,
         jobsRepository
       );
     default:
