@@ -30,7 +30,10 @@ export default class MapWorkerJob implements Job {
   }
 
   enqueueTask(task: Task): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    console.log('MAP WORKER RECEIVED MAP TASK');
+    return new Promise<boolean>((resolve) => {
+      resolve(true);
+    });
   }
 
   suppressTask(id: string): Promise<void> {
