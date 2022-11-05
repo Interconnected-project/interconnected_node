@@ -18,9 +18,6 @@ export default class MapReduceRegionSplitsTask implements Task {
     return new Promise<void>((resolve) => {
       try {
         const mapWorkers: MasterP2PConnection[] = jobParams.mapWorkers;
-        console.log(
-          'SPLIT TASK map workers length' + mapWorkers.length.toString()
-        );
         const roundedUpSplitsPerWorker = Math.ceil(
           this.splits.length / mapWorkers.length
         );
@@ -34,14 +31,13 @@ export default class MapReduceRegionSplitsTask implements Task {
         ) {
           const mw = mapWorkers[currentMWIndex];
           let splitsToSendNumber = roundedUpSplitsPerWorker;
-          const remainingSplitsNumber =
-            this.splits.length - roundedUpSplitsPerWorker - currentSplitIndex;
+          const remainingSplitsNumber = this.splits.length - currentSplitIndex;
           if (remainingSplitsNumber < roundedUpSplitsPerWorker) {
-            splitsToSendNumber += remainingSplitsNumber;
+            splitsToSendNumber = remainingSplitsNumber;
           }
           const splitsToSend = this.splits.slice(
             currentSplitIndex,
-            splitsToSendNumber
+            currentSplitIndex + splitsToSendNumber
           );
           mw.sendMessage(
             JSON.stringify({
