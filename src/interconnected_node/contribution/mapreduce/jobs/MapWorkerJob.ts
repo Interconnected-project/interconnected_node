@@ -18,8 +18,6 @@ export default class MapWorkerJob implements Job {
     console.log(
       'I am a MapWorker that has received the code:\n' + this.mapFunction
     );
-    console.log('executing the received code');
-    eval(this.mapFunction);
     return new Promise<void>((resolve) => {
       resolve();
     });
@@ -30,8 +28,12 @@ export default class MapWorkerJob implements Job {
   }
 
   enqueueTask(task: Task): Promise<boolean> {
-    console.log('MAP WORKER RECEIVED MAP TASK');
     return new Promise<boolean>((resolve) => {
+      task.execute(
+        { mapFunction: this.mapFunction },
+        () => console.log('COMPLETED MAP TASK'),
+        () => console.log('ERROR ON MAP TASK')
+      );
       resolve(true);
     });
   }

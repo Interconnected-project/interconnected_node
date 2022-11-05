@@ -1,8 +1,12 @@
 import Task from '../../common/Task';
 
 export default class MapReduceMapTask implements Task {
+  private regionId: string;
+  private splits: Object[];
+
   constructor(params: any) {
-    //TODO implement
+    this.regionId = params.regionId;
+    this.splits = params.splits;
   }
 
   execute(
@@ -10,6 +14,9 @@ export default class MapReduceMapTask implements Task {
     onCompletionCallback: () => void,
     onErrorCallback: () => void
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    const mapFunction = jobParams.mapFunction;
+    this.splits.forEach((s) => eval(mapFunction)(s));
+    onCompletionCallback();
+    return new Promise<void>((resolve) => resolve());
   }
 }
