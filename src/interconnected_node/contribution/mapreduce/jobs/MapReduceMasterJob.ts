@@ -160,24 +160,18 @@ export default class MapReduceMasterJob implements Job {
     const mwUsed = new Array<MasterP2PConnection>();
     const remainingMWsFromIndex =
       this.mapWorkers.length - this.currentUsedMapWorkerIndex;
-    console.log('length ' + this.mapWorkers.length.toString());
-    console.log('index ' + this.currentUsedMapWorkerIndex.toString());
-    console.log('remaining ' + remainingMWsFromIndex.toString());
-    console.log('per region ' + this.mapWorkersPerRegion);
     if (remainingMWsFromIndex >= this.mapWorkersPerRegion) {
-      console.log('A');
       mwUsed.push(
         ...this.mapWorkers.slice(
           this.currentUsedMapWorkerIndex,
-          this.mapWorkersPerRegion
+          this.currentUsedMapWorkerIndex + this.mapWorkersPerRegion
         )
       );
     } else {
-      console.log('B');
       mwUsed.push(
         ...this.mapWorkers.slice(
           this.currentUsedMapWorkerIndex,
-          remainingMWsFromIndex
+          this.currentUsedMapWorkerIndex + remainingMWsFromIndex
         )
       );
       mwUsed.push(
@@ -187,7 +181,6 @@ export default class MapReduceMasterJob implements Job {
         )
       );
     }
-    console.log(mwUsed.length.toString());
     this.currentUsedMapWorkerIndex += this.mapWorkersPerRegion;
     if (this.currentUsedMapWorkerIndex >= this.mapWorkers.length) {
       this.currentUsedMapWorkerIndex =
