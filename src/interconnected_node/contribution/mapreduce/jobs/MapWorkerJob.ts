@@ -15,9 +15,6 @@ export default class MapWorkerJob implements Job {
   }
 
   start(): Promise<void> {
-    console.log(
-      'I am a MapWorker that has received the code:\n' + this.mapFunction
-    );
     return new Promise<void>((resolve) => {
       resolve();
     });

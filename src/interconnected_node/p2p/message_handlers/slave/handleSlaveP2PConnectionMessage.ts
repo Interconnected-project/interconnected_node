@@ -12,7 +12,6 @@ export default function handleSlaveP2PConnectionMessage(
   jobsRepository: JobsRepository
 ) {
   const parsedMsg = JSON.parse(msg);
-  console.log('channel: ' + parsedMsg.channel);
   switch (parsedMsg.channel) {
     case 'START_JOB':
       onSlaveStartJobMessageHandler(

@@ -14,9 +14,14 @@ export default class MapReduceMapTask implements Task {
     onCompletionCallback: () => void,
     onErrorCallback: () => void
   ): Promise<void> {
-    const mapFunction = jobParams.mapFunction;
-    this.splits.forEach((s) => eval(mapFunction)(s));
-    onCompletionCallback();
-    return new Promise<void>((resolve) => resolve());
+    return new Promise<void>((resolve) => {
+      const mapFunction = eval(jobParams.mapFunction);
+      const intermediateResults = this.splits.map((s) => {
+        return mapFunction(s);
+      });
+      console.log(intermediateResults);
+      onCompletionCallback();
+      resolve();
+    });
   }
 }
