@@ -3,10 +3,12 @@ import Task from '../../common/Task';
 
 export default class MapReduceMapTask implements Task {
   private regionId: string;
+  private splitsTotal: number;
   private splits: Object[];
 
   constructor(params: any) {
     this.regionId = params.regionId;
+    this.splitsTotal = params.splitsTotal;
     this.splits = params.splits;
   }
 
@@ -30,6 +32,7 @@ export default class MapReduceMapTask implements Task {
               name: 'MAPREDUCE_MAP',
               params: {
                 regionId: this.regionId,
+                splitsTotal: this.splitsTotal,
                 intermediateResults: intermediateResults,
               },
             },

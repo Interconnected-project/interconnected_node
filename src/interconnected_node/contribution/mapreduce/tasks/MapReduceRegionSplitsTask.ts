@@ -46,6 +46,7 @@ export default class MapReduceRegionSplitsTask implements Task {
                 name: 'MAPREDUCE_MAP',
                 params: {
                   regionId: this.regionId,
+                  splitsTotal: this.splits.length,
                   splits: splitsToSend,
                 },
               },

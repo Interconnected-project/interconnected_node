@@ -238,6 +238,8 @@ export default class MapReduceMasterJob implements Job {
       console.log(
         'received map result: ' +
           parsedMsg.payload.params.regionId +
+          ' ' +
+          parsedMsg.payload.params.splitsTotal +
           '\n' +
           parsedMsg.payload.params.intermediateResults
       );
