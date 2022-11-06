@@ -24,6 +24,7 @@ export default class MapReduceMasterJob implements Job {
   private mapFunction: string;
   private reduceFunction: string;
   private enqueuedTasks: Array<Task>;
+  private intermediateResults: Map<string, Object[]>;
 
   constructor(
     params: any,
@@ -47,6 +48,7 @@ export default class MapReduceMasterJob implements Job {
     this.mapWorkersPerRegion = Math.ceil(
       this.mapWorkersToReach / this.reduceWorkersToReach
     );
+    this.intermediateResults = new Map();
   }
 
   get operationId(): string {
@@ -235,14 +237,31 @@ export default class MapReduceMasterJob implements Job {
       parsedMsg.channel === 'TASK_COMPLETED' &&
       parsedMsg.payload.name === 'MAPREDUCE_MAP'
     ) {
-      console.log(
-        'received map result: ' +
-          parsedMsg.payload.params.regionId +
-          ' ' +
-          parsedMsg.payload.params.splitsTotal +
-          '\n' +
-          parsedMsg.payload.params.intermediateResults
-      );
+      const regionId = parsedMsg.payload.params.regionId;
+      const mapWorkerIntermediateResults =
+        parsedMsg.payload.params.intermediateResults;
+      const accumulatedMWIntermediateResults =
+        this.intermediateResults.get(regionId);
+      let updatedIntermediateResults: Object[];
+      if (accumulatedMWIntermediateResults === undefined) {
+        updatedIntermediateResults = mapWorkerIntermediateResults;
+      } else {
+        updatedIntermediateResults = accumulatedMWIntermediateResults.concat(
+          mapWorkerIntermediateResults
+        );
+      }
+      this.intermediateResults.set(regionId, updatedIntermediateResults);
+      if (
+        updatedIntermediateResults.length ===
+        parsedMsg.payload.params.splitsTotal
+      ) {
+        console.log(
+          'RECEIVED ALL IRs FOR REGION ' +
+            regionId +
+            '\n' +
+            updatedIntermediateResults
+        );
+      }
     }
     return new Promise<void>((resolve) => resolve());
   }
