@@ -231,6 +231,16 @@ export default class MapReduceMasterJob implements Job {
       ) {
         this.mapWorkersJobGuard = true;
       }
+    } else if (
+      parsedMsg.channel === 'TASK_COMPLETED' &&
+      parsedMsg.payload.name === 'MAPREDUCE_MAP'
+    ) {
+      console.log(
+        'received map result: ' +
+          parsedMsg.payload.params.regionId +
+          '\n' +
+          parsedMsg.payload.params.intermediateResults
+      );
     }
     return new Promise<void>((resolve) => resolve());
   }

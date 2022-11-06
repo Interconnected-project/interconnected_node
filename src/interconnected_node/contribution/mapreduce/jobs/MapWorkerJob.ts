@@ -27,7 +27,10 @@ export default class MapWorkerJob implements Job {
   enqueueTask(task: Task): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       task.execute(
-        { mapFunction: this.mapFunction },
+        {
+          mapFunction: this.mapFunction,
+          slaveP2PConnection: this.slaveP2PConnection,
+        },
         () => console.log('COMPLETED MAP TASK'),
         () => console.log('ERROR ON MAP TASK')
       );
@@ -36,7 +39,7 @@ export default class MapWorkerJob implements Job {
   }
 
   notifyNewMasterP2PConnection(
-    masterP2PConnection: MasterP2PConnection
+    _masterP2PConnection: MasterP2PConnection
   ): Promise<void> {
     // does not need any MasterP2PConnection
     return new Promise<void>((resolve) => {
