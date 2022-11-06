@@ -21,6 +21,8 @@ export default class MapReduceMasterJob implements Job {
   private mapWorkersPerRegion: number;
   private reduceWorkersToReach: number;
   private reduceWorkers: Array<MasterP2PConnection>;
+  private reduceWorkersJobAcks: Map<string, boolean>;
+  private reduceWorkersJobGuard: boolean;
   private mapFunction: string;
   private reduceFunction: string;
   private enqueuedTasks: Array<Task>;
@@ -43,6 +45,8 @@ export default class MapReduceMasterJob implements Job {
     this.reduceWorkersToReach = params.reduceWorkers;
     this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
+    this.reduceWorkersJobAcks = new Map();
+    this.reduceWorkersJobGuard = false;
     this.reduceFunction = params.reduceFunction;
     this.enqueuedTasks = new Array();
     this.mapWorkersPerRegion = Math.ceil(
@@ -116,7 +120,8 @@ export default class MapReduceMasterJob implements Job {
     masterP2PConnection: MasterP2PConnection
   ): Promise<void> {
     this.reduceWorkers.push(masterP2PConnection);
-    if (this.mapWorkers.length === this.mapWorkersToReach) {
+    this.reduceWorkersJobAcks.set(masterP2PConnection.slaveId, false);
+    if (this.reduceWorkers.length === this.reduceWorkersToReach) {
       this.status = Status.RECRUITMENT_COMPLETED;
       console.log('RECRUITMENT COMPLETED');
     }
@@ -232,6 +237,21 @@ export default class MapReduceMasterJob implements Job {
         })
       ) {
         this.mapWorkersJobGuard = true;
+      }
+    } else if (
+      parsedMsg.channel === 'START_JOB' &&
+      parsedMsg.payload.name === 'REDUCE_WORKER' &&
+      parsedMsg.payload.result === 'ACK'
+    ) {
+      this.reduceWorkersJobAcks.set(masterP2PConnection.slaveId, true);
+      if (
+        this.reduceWorkersJobAcks.size === this.reduceWorkersToReach &&
+        Array.from(this.reduceWorkersJobAcks.values()).every((s) => {
+          return s === true;
+        })
+      ) {
+        this.reduceWorkersJobGuard = true;
+        console.log('REDUCE WORKERS JOB GUARD DISABLED');
       }
     } else if (
       parsedMsg.channel === 'TASK_COMPLETED' &&
