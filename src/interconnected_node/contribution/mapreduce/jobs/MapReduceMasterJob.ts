@@ -313,6 +313,23 @@ export default class MapReduceMasterJob implements Job {
         this.intermediateResults.delete(regionId);
         this.sendReduceTask(regionId, updatedIntermediateResults);
       }
+    } else if (
+      parsedMsg.channel === 'TASK_COMPLETED' &&
+      parsedMsg.payload.name === 'MAPREDUCE_REDUCE'
+    ) {
+      console.log(parsedMsg);
+      this.slaveP2PConnection.sendMessage(
+        JSON.stringify({
+          channel: 'TASK_COMPLETED',
+          payload: {
+            name: 'MAPREDUCE_REGION_SPLITS',
+            params: {
+              regionId: parsedMsg.payload.params.regionId,
+              result: parsedMsg.payload.params.result,
+            },
+          },
+        })
+      );
     }
     return new Promise<void>((resolve) => resolve());
   }
