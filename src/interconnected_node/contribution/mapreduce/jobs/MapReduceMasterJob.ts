@@ -1,4 +1,5 @@
 import { Socket } from 'socket.io-client';
+import { runInThisContext } from 'vm';
 import BrokerServiceChannels from '../../../broker_service_socket/BrokerServiceChannels';
 import MasterP2PConnection from '../../../p2p/connections/MasterP2PConnection';
 import SlaveP2PConnection from '../../../p2p/connections/SlaveP2PConnection';
@@ -19,6 +20,7 @@ export default class MapReduceMasterJob implements Job {
   private mapWorkersJobAcks: Map<string, boolean>;
   private mapWorkersJobGuard: boolean;
   private mapWorkersPerRegion: number;
+  private currentUsedReduceWorkerIndex: number;
   private reduceWorkersToReach: number;
   private reduceWorkers: Array<MasterP2PConnection>;
   private reduceWorkersJobAcks: Map<string, boolean>;
@@ -45,6 +47,9 @@ export default class MapReduceMasterJob implements Job {
     this.reduceWorkersToReach = params.reduceWorkers;
     this.reduceWorkers = new Array<MasterP2PConnection>();
     this.mapFunction = params.mapFunction;
+    this.currentUsedReduceWorkerIndex = Math.floor(
+      Math.random() * this.reduceWorkersToReach
+    );
     this.reduceWorkersJobAcks = new Map();
     this.reduceWorkersJobGuard = false;
     this.reduceFunction = params.reduceFunction;
@@ -209,6 +214,30 @@ export default class MapReduceMasterJob implements Job {
     }, 100);
   }
 
+  private sendReduceTask(regionId: string, intermediateResult: Object[]): void {
+    const interval = setInterval(() => {
+      if (this.reduceWorkersJobGuard === true) {
+        clearInterval(interval);
+        const rw = this.reduceWorkers[this.currentUsedReduceWorkerIndex];
+        if (++this.currentUsedReduceWorkerIndex === this.reduceWorkers.length) {
+          this.currentUsedReduceWorkerIndex = 0;
+        }
+        rw.sendMessage(
+          JSON.stringify({
+            channel: 'EXECUTE_TASK',
+            payload: {
+              name: 'MAPREDUCE_REDUCE',
+              params: {
+                regionId: regionId,
+                intermediateResult: intermediateResult,
+              },
+            },
+          })
+        );
+      }
+    }, 100);
+  }
+
   enqueueTask(task: Task): Promise<boolean> {
     if (this.status === Status.MAP_WORKERS_RECRUITMENT) {
       console.log('RECEIVED TASK, BUT ENQUEUED IT');
@@ -281,6 +310,8 @@ export default class MapReduceMasterJob implements Job {
             '\n' +
             updatedIntermediateResults
         );
+        this.intermediateResults.delete(regionId);
+        this.sendReduceTask(regionId, updatedIntermediateResults);
       }
     }
     return new Promise<void>((resolve) => resolve());

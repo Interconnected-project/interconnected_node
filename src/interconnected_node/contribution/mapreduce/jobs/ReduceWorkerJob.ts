@@ -15,11 +15,6 @@ export default class ReduceWorkerJob implements Job {
   }
 
   start(): Promise<void> {
-    console.log(
-      'I am a ReduceWorker that has received the code:\n' + this.reduceFunction
-    );
-    console.log('executing the received code');
-    eval(this.reduceFunction);
     return new Promise<void>((resolve) => {
       resolve();
     });
@@ -30,7 +25,17 @@ export default class ReduceWorkerJob implements Job {
   }
 
   enqueueTask(task: Task): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return new Promise<boolean>((resolve) => {
+      task.execute(
+        {
+          reduceFunction: this.reduceFunction,
+          slaveP2PConnection: this.slaveP2PConnection,
+        },
+        () => console.log('COMPLETED REDUCE TASK'),
+        () => console.log('ERROR ON REDUCE TASK')
+      );
+      resolve(true);
+    });
   }
 
   notifyNewMasterP2PConnection(
