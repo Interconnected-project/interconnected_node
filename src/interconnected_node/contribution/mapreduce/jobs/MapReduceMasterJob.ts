@@ -98,9 +98,9 @@ export default class MapReduceMasterJob implements Job {
             }
           );
           while (this.enqueuedTasks.length > 0) {
-            const poppedTask = this.enqueuedTasks.pop();
-            if (poppedTask !== undefined) {
-              this.executeSplit(poppedTask);
+            const retrievedTask = this.enqueuedTasks.shift();
+            if (retrievedTask !== undefined) {
+              this.executeSplit(retrievedTask);
             }
           }
           clearInterval(switchToReduceWorkersRecruitmentInterval);
