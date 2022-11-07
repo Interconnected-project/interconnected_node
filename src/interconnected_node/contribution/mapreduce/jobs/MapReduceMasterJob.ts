@@ -168,6 +168,7 @@ export default class MapReduceMasterJob implements Job {
 
   stop(): Promise<void> {
     return new Promise<void>((resolve) => {
+      this.slaveP2PConnection.close();
       this.masterP2PConnectionsHub
         .removeByOperationId(this.slaveP2PConnection.operationId)
         .forEach((c) => c.close());
@@ -247,7 +248,6 @@ export default class MapReduceMasterJob implements Job {
 
   enqueueTask(task: Task): Promise<boolean> {
     if (this.status === Status.MAP_WORKERS_RECRUITMENT) {
-      console.log('RECEIVED TASK, BUT ENQUEUED IT');
       this.enqueuedTasks.push(task);
     } else {
       this.executeSplit(task);

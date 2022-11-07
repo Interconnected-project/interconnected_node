@@ -37,7 +37,7 @@ export default function applyOnRecruitmentAcceptHandler(
             payload.slaveId
           );
           masterConnection?.close();
-          // TODO probably have to notify jobs
+          jobsRepository.remove(payload.operationId)?.stop();
         })
         .build();
       if (masterP2PConnectionsHub.add(masterP2PConnection)) {
