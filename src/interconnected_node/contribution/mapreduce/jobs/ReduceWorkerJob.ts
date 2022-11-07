@@ -5,9 +5,13 @@ import Task from '../../common/Task';
 
 export default class ReduceWorkerJob implements Job {
   private reduceFunction: string;
+  private isExecutingTask: boolean;
+  private tasks: Array<Task>;
 
   constructor(params: any, private slaveP2PConnection: SlaveP2PConnection) {
     this.reduceFunction = params.reduceFunction;
+    this.isExecutingTask = false;
+    this.tasks = new Array<Task>();
   }
 
   get operationId(): string {
@@ -27,16 +31,37 @@ export default class ReduceWorkerJob implements Job {
     });
   }
 
+  private taskExecution(task: Task): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.isExecutingTask = true;
+      task
+        .execute(
+          {
+            reduceFunction: this.reduceFunction,
+            slaveP2PConnection: this.slaveP2PConnection,
+          },
+          () => console.log('COMPLETED REDUCE TASK'),
+          () => console.log('ERROR ON REDUCE TASK')
+        )
+        .then(() => {
+          const nextTask = this.tasks.shift();
+          if (nextTask !== undefined) {
+            this.taskExecution(nextTask);
+          } else {
+            this.isExecutingTask = false;
+          }
+          resolve();
+        });
+    });
+  }
+
   enqueueTask(task: Task): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-      task.execute(
-        {
-          reduceFunction: this.reduceFunction,
-          slaveP2PConnection: this.slaveP2PConnection,
-        },
-        () => console.log('COMPLETED REDUCE TASK'),
-        () => console.log('ERROR ON REDUCE TASK')
-      );
+      if (this.isExecutingTask) {
+        this.tasks.push(task);
+      } else {
+        this.taskExecution(task);
+      }
       resolve(true);
     });
   }
