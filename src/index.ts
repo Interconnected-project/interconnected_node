@@ -5,6 +5,7 @@ import ClientSpecificP2PConnectionBuilders from './interconnected_node/p2p/build
 import P2PConnection from './interconnected_node/p2p/connections/P2PConnection';
 import MasterP2PConnection from './interconnected_node/p2p/connections/MasterP2PConnection';
 import SlaveP2PConnection from './interconnected_node/p2p/connections/SlaveP2PConnection';
+import DeviceType from './interconnected_node/broker_service_socket/DeviceType';
 
 export default InterconnectedNode;
 
@@ -15,4 +16,5 @@ export {
   P2PConnection,
   MasterP2PConnection,
   SlaveP2PConnection,
+  DeviceType,
 };

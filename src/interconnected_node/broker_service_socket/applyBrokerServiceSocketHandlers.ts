@@ -4,6 +4,7 @@ import JobsRepository from '../contribution/common/JobsRepository';
 import ClientSpecificP2PConnectionBuilders from '../p2p/builders/ClientSpecificP2PConnectionBuilders';
 import MasterP2PConnectionsHub from '../p2p/hubs/MasterP2PConnectionsHub';
 import SlaveP2PConnectionsHub from '../p2p/hubs/SlaveP2PConnectionsHub';
+import DeviceType from './DeviceType';
 import applyOnAnswerConnectionHandler from './handlers/applyOnAnswerConnectionHandler';
 import applyOnIceCandidateHandler from './handlers/applyOnIceCandidateHandler';
 import applyOnRecruitmentAcceptHandler from './handlers/applyOnRecruitmentAcceptHandler';
@@ -16,7 +17,8 @@ export default function applyBrokerServiceSocketHandlers(
   slaveP2PConnectionsHub: SlaveP2PConnectionsHub,
   masterP2PConnectionsHub: MasterP2PConnectionsHub,
   jobsRepository: JobsRepository,
-  builders: ClientSpecificP2PConnectionBuilders
+  builders: ClientSpecificP2PConnectionBuilders,
+  deviceType: DeviceType
 ) {
   brokerServiceSocket.on('connect', () => {
     console.log('Node connected to Broker!');
@@ -30,7 +32,8 @@ export default function applyBrokerServiceSocketHandlers(
     brokerServiceSocket,
     interconnectedNodeId,
     slaveP2PConnectionsHub,
-    jobsRepository
+    jobsRepository,
+    deviceType
   );
 
   applyOnRecruitmentAcceptHandler(

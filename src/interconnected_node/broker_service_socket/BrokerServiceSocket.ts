@@ -4,6 +4,7 @@ import ClientSpecificP2PConnectionBuilders from '../p2p/builders/ClientSpecificP
 import MasterP2PConnectionsHub from '../p2p/hubs/MasterP2PConnectionsHub';
 import SlaveP2PConnectionsHub from '../p2p/hubs/SlaveP2PConnectionsHub';
 import applyBrokerServiceSocketHandlers from './applyBrokerServiceSocketHandlers';
+import DeviceType from './DeviceType';
 
 export default class BrokerServiceSocket {
   private socket: Socket | undefined;
@@ -13,7 +14,8 @@ export default class BrokerServiceSocket {
 
   constructor(
     private interconnectedNodeId: string,
-    private builders: ClientSpecificP2PConnectionBuilders
+    private builders: ClientSpecificP2PConnectionBuilders,
+    private deviceType: DeviceType
   ) {
     this.socket = undefined;
     this.slaveP2PConnectionsHub = new SlaveP2PConnectionsHub();
@@ -38,7 +40,8 @@ export default class BrokerServiceSocket {
       this.slaveP2PConnectionsHub,
       this.masterP2PConnectionsHub,
       this.jobsRepository,
-      this.builders
+      this.builders,
+      this.deviceType
     );
     this.socket.connect();
   }
