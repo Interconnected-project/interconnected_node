@@ -1,4 +1,5 @@
 import BrokerServiceSocket from './broker_service_socket/BrokerServiceSocket';
+import DeviceType from './broker_service_socket/DeviceType';
 import ClientSpecificP2PConnectionBuilders from './p2p/builders/ClientSpecificP2PConnectionBuilders';
 
 export default class InterconnectedNode {
@@ -6,11 +7,13 @@ export default class InterconnectedNode {
 
   constructor(
     private interconnectedNodeId: string,
-    private builders: ClientSpecificP2PConnectionBuilders
+    private builders: ClientSpecificP2PConnectionBuilders,
+    private deviceType: DeviceType
   ) {
     this.brokerServiceSocket = new BrokerServiceSocket(
       this.interconnectedNodeId,
-      this.builders
+      this.builders,
+      this.deviceType
     );
   }
 
