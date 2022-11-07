@@ -21,7 +21,10 @@ export default class ReduceWorkerJob implements Job {
   }
 
   stop(): Promise<void> {
-    throw new Error('Method not implemented.');
+    // does not need to do anything on stop
+    return new Promise<void>((resolve) => {
+      resolve();
+    });
   }
 
   enqueueTask(task: Task): Promise<boolean> {
@@ -51,6 +54,9 @@ export default class ReduceWorkerJob implements Job {
     masterP2PConnection: MasterP2PConnection,
     msg: any
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    // does not need any message notification
+    return new Promise<void>((resolve) => {
+      resolve();
+    });
   }
 }

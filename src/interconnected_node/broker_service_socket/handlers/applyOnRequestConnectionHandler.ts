@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io-client';
 import JobsRepository from '../../contribution/common/JobsRepository';
 import ClientSpecificP2PConnectionBuilders from '../../p2p/builders/ClientSpecificP2PConnectionBuilders';
+import MasterP2PConnectionsHub from '../../p2p/hubs/MasterP2PConnectionsHub';
 import SlaveP2PConnectionsHub from '../../p2p/hubs/SlaveP2PConnectionsHub';
 import handleSlaveP2PConnectionMessage from '../../p2p/message_handlers/slave/handleSlaveP2PConnectionMessage';
 import BrokerServiceChannels from '../BrokerServiceChannels';
@@ -9,6 +10,7 @@ export default function applyOnRequestConnectionHandler(
   brokerServiceSocket: Socket,
   interconnectedNodeId: string,
   slaveP2PConnectionsHub: SlaveP2PConnectionsHub,
+  masterP2PConnectionsHub: MasterP2PConnectionsHub,
   builders: ClientSpecificP2PConnectionBuilders,
   jobsRepository: JobsRepository
 ): void {
@@ -40,6 +42,7 @@ export default function applyOnRequestConnectionHandler(
             handleSlaveP2PConnectionMessage(
               msg,
               slaveP2PConnection,
+              masterP2PConnectionsHub,
               brokerServiceSocket,
               interconnectedNodeId,
               jobsRepository

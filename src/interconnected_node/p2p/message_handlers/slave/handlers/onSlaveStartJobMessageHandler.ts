@@ -3,10 +3,12 @@ import createJob from '../../../../contribution/common/createJob';
 import Job from '../../../../contribution/common/Job';
 import JobsRepository from '../../../../contribution/common/JobsRepository';
 import SlaveP2PConnection from '../../../connections/SlaveP2PConnection';
+import MasterP2PConnectionsHub from '../../../hubs/MasterP2PConnectionsHub';
 
 export default function onSlaveStartJobMessageHandler(
   payload: any,
   slaveP2PConnection: SlaveP2PConnection,
+  masterP2PConnectionsHub: MasterP2PConnectionsHub,
   brokerServiceSocket: Socket,
   interconnectedNodeId: string,
   jobsRepository: JobsRepository
@@ -14,6 +16,7 @@ export default function onSlaveStartJobMessageHandler(
   let job: Job = createJob(
     payload,
     slaveP2PConnection,
+    masterP2PConnectionsHub,
     brokerServiceSocket,
     interconnectedNodeId
   );

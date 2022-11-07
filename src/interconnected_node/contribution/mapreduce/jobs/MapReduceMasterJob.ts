@@ -3,6 +3,7 @@ import { runInThisContext } from 'vm';
 import BrokerServiceChannels from '../../../broker_service_socket/BrokerServiceChannels';
 import MasterP2PConnection from '../../../p2p/connections/MasterP2PConnection';
 import SlaveP2PConnection from '../../../p2p/connections/SlaveP2PConnection';
+import MasterP2PConnectionsHub from '../../../p2p/hubs/MasterP2PConnectionsHub';
 import Job from '../../common/Job';
 import Task from '../../common/Task';
 
@@ -33,6 +34,7 @@ export default class MapReduceMasterJob implements Job {
   constructor(
     params: any,
     private slaveP2PConnection: SlaveP2PConnection,
+    private masterP2PConnectionsHub: MasterP2PConnectionsHub,
     private brokerServiceSocket: Socket,
     private interconnectedNodeId: string
   ) {
@@ -165,7 +167,12 @@ export default class MapReduceMasterJob implements Job {
   }
 
   stop(): Promise<void> {
-    throw new Error('Method not implemented.');
+    return new Promise<void>((resolve) => {
+      this.masterP2PConnectionsHub
+        .removeByOperationId(this.slaveP2PConnection.operationId)
+        .forEach((c) => c.close());
+      resolve();
+    });
   }
 
   private executeSplit(task: Task): void {
