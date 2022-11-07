@@ -30,6 +30,8 @@ export default class MapReduceMasterJob implements Job {
   private reduceFunction: string;
   private enqueuedTasks: Array<Task>;
   private intermediateResults: Map<string, Object[]>;
+  private reduceTasksToSendQueue: Array<any>;
+  private isSendingReduceTasks: boolean;
 
   constructor(
     params: any,
@@ -60,6 +62,8 @@ export default class MapReduceMasterJob implements Job {
       this.mapWorkersToReach / this.reduceWorkersToReach
     );
     this.intermediateResults = new Map();
+    this.reduceTasksToSendQueue = new Array<Task>();
+    this.isSendingReduceTasks = false;
   }
 
   get operationId(): string {
@@ -222,10 +226,12 @@ export default class MapReduceMasterJob implements Job {
     }, 100);
   }
 
-  private sendReduceTask(regionId: string, intermediateResult: Object[]): void {
-    const interval = setInterval(() => {
-      if (this.reduceWorkersJobGuard === true) {
-        clearInterval(interval);
+  private shiftReduceTaskToSendFromQueue(): void {
+    if (this.reduceWorkersJobGuard === true && !this.isSendingReduceTasks) {
+      const rt = this.reduceTasksToSendQueue.shift();
+      if (rt !== undefined) {
+        const regionId = rt.regionId;
+        const intermediateResult = rt.intermediateResult;
         const rw = this.reduceWorkers[this.currentUsedReduceWorkerIndex];
         if (++this.currentUsedReduceWorkerIndex === this.reduceWorkers.length) {
           this.currentUsedReduceWorkerIndex = 0;
@@ -242,8 +248,17 @@ export default class MapReduceMasterJob implements Job {
             },
           })
         );
+        this.shiftReduceTaskToSendFromQueue();
       }
-    }, 100);
+    }
+  }
+
+  private sendReduceTask(regionId: string, intermediateResult: Object[]): void {
+    this.reduceTasksToSendQueue.push({
+      regionId: regionId,
+      intermediateResult: intermediateResult,
+    });
+    this.shiftReduceTaskToSendFromQueue();
   }
 
   enqueueTask(task: Task): Promise<boolean> {
@@ -287,6 +302,7 @@ export default class MapReduceMasterJob implements Job {
         })
       ) {
         this.reduceWorkersJobGuard = true;
+        this.shiftReduceTaskToSendFromQueue();
         console.log('REDUCE WORKERS JOB GUARD DISABLED');
       }
     } else if (
