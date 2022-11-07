@@ -311,12 +311,6 @@ export default class MapReduceMasterJob implements Job {
         updatedIntermediateResults.length ===
         parsedMsg.payload.params.splitsTotal
       ) {
-        console.log(
-          'RECEIVED ALL IRs FOR REGION ' +
-            regionId +
-            '\n' +
-            updatedIntermediateResults
-        );
         this.intermediateResults.delete(regionId);
         this.sendReduceTask(regionId, updatedIntermediateResults);
       }
@@ -324,7 +318,6 @@ export default class MapReduceMasterJob implements Job {
       parsedMsg.channel === 'TASK_COMPLETED' &&
       parsedMsg.payload.name === 'MAPREDUCE_REDUCE'
     ) {
-      console.log(parsedMsg);
       this.slaveP2PConnection.sendMessage(
         JSON.stringify({
           channel: 'TASK_COMPLETED',
