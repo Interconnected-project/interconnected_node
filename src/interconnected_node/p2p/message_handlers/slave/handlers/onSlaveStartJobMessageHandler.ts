@@ -30,7 +30,9 @@ export default function onSlaveStartJobMessageHandler(
   if (job !== undefined && jobsRepository.add(job) === true) {
     job.start();
   } else {
+    console.log('CANNOT START JOB');
     response.payload.result = 'ERROR';
   }
+  console.log('SENDING START_JOB RESPONSE');
   slaveP2PConnection.sendMessage(JSON.stringify(response));
 }

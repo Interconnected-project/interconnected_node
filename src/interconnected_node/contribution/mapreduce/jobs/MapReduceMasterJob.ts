@@ -89,18 +89,15 @@ export default class MapReduceMasterJob implements Job {
     this.mapWorkersJobAcks.set(masterP2PConnection.slaveId, false);
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.REDUCE_WORKERS_RECRUITMENT;
-      console.log('MAP WORKERS RECRUITED');
+      console.log('MAP WORKERS RECRUITED, EMITTING NEW RECRUITMENT REQUEST');
+      this.brokerServiceSocket.emit(BrokerServiceChannels.RECRUITMENT_REQUEST, {
+        operationId: this.operationId,
+        nodesToReach: this.reduceWorkersToReach,
+        masterId: this.interconnectedNodeId,
+        masterRole: 'NODE',
+      });
       const switchToReduceWorkersRecruitmentInterval = setInterval(() => {
         if (this.mapWorkers.every((mw) => mw.remoteDescription !== undefined)) {
-          this.brokerServiceSocket.emit(
-            BrokerServiceChannels.RECRUITMENT_REQUEST,
-            {
-              operationId: this.operationId,
-              nodesToReach: this.reduceWorkersToReach,
-              masterId: this.interconnectedNodeId,
-              masterRole: 'NODE',
-            }
-          );
           while (this.enqueuedTasks.length > 0) {
             const retrievedTask = this.enqueuedTasks.shift();
             if (retrievedTask !== undefined) {
@@ -231,6 +228,7 @@ export default class MapReduceMasterJob implements Job {
       const rt = this.reduceTasksToSendQueue.shift();
       if (rt !== undefined) {
         const regionId = rt.regionId;
+        console.log('SENDING REDUCE TASK FOR REGION ' + regionId);
         const intermediateResult = rt.intermediateResult;
         const rw = this.reduceWorkers[this.currentUsedReduceWorkerIndex];
         if (++this.currentUsedReduceWorkerIndex === this.reduceWorkers.length) {
@@ -280,6 +278,7 @@ export default class MapReduceMasterJob implements Job {
       parsedMsg.payload.name === 'MAP_WORKER' &&
       parsedMsg.payload.result === 'ACK'
     ) {
+      console.log('RECEIVED MAP WORKER JOB ACK');
       this.mapWorkersJobAcks.set(masterP2PConnection.slaveId, true);
       if (
         this.mapWorkersJobAcks.size === this.mapWorkersToReach &&
@@ -288,12 +287,14 @@ export default class MapReduceMasterJob implements Job {
         })
       ) {
         this.mapWorkersJobGuard = true;
+        console.log('MAP WORKERS JOB GUARD DISABLED');
       }
     } else if (
       parsedMsg.channel === 'START_JOB' &&
       parsedMsg.payload.name === 'REDUCE_WORKER' &&
       parsedMsg.payload.result === 'ACK'
     ) {
+      console.log('RECEIVED REDUCE WORKER JOB ACK');
       this.reduceWorkersJobAcks.set(masterP2PConnection.slaveId, true);
       if (
         this.reduceWorkersJobAcks.size === this.reduceWorkersToReach &&
@@ -302,8 +303,8 @@ export default class MapReduceMasterJob implements Job {
         })
       ) {
         this.reduceWorkersJobGuard = true;
-        this.shiftReduceTaskToSendFromQueue();
         console.log('REDUCE WORKERS JOB GUARD DISABLED');
+        this.shiftReduceTaskToSendFromQueue();
       }
     } else if (
       parsedMsg.channel === 'TASK_COMPLETED' &&
@@ -327,6 +328,7 @@ export default class MapReduceMasterJob implements Job {
         updatedIntermediateResults.length ===
         parsedMsg.payload.params.splitsTotal
       ) {
+        console.log('COMPLETED MAPPING REGION ' + regionId);
         this.intermediateResults.delete(regionId);
         this.sendReduceTask(regionId, updatedIntermediateResults);
       }
@@ -334,6 +336,9 @@ export default class MapReduceMasterJob implements Job {
       parsedMsg.channel === 'TASK_COMPLETED' &&
       parsedMsg.payload.name === 'MAPREDUCE_REDUCE'
     ) {
+      console.log(
+        'RECEIVED REDUCE RESULT FOR REGION ' + parsedMsg.payload.params.regionId
+      );
       this.slaveP2PConnection.sendMessage(
         JSON.stringify({
           channel: 'TASK_COMPLETED',
