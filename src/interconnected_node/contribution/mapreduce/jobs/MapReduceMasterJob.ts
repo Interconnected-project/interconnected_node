@@ -89,22 +89,26 @@ export default class MapReduceMasterJob implements Job {
     this.mapWorkersJobAcks.set(masterP2PConnection.slaveId, false);
     if (this.mapWorkers.length === this.mapWorkersToReach) {
       this.status = Status.REDUCE_WORKERS_RECRUITMENT;
-      console.log('MAP WORKERS RECRUITED, EMITTING NEW RECRUITMENT REQUEST');
-      this.brokerServiceSocket.emit(BrokerServiceChannels.RECRUITMENT_REQUEST, {
-        operationId: this.operationId,
-        nodesToReach: this.reduceWorkersToReach,
-        masterId: this.interconnectedNodeId,
-        masterRole: 'NODE',
-      });
+      console.log('MAP WORKERS RECRUITED');
       const switchToReduceWorkersRecruitmentInterval = setInterval(() => {
         if (this.mapWorkers.every((mw) => mw.remoteDescription !== undefined)) {
+          clearInterval(switchToReduceWorkersRecruitmentInterval);
+          console.log('EMITTING NEW RECRUITMENT REQUEST FOR REDUCE WORKERS');
+          this.brokerServiceSocket.emit(
+            BrokerServiceChannels.RECRUITMENT_REQUEST,
+            {
+              operationId: this.operationId,
+              nodesToReach: this.reduceWorkersToReach,
+              masterId: this.interconnectedNodeId,
+              masterRole: 'NODE',
+            }
+          );
           while (this.enqueuedTasks.length > 0) {
             const retrievedTask = this.enqueuedTasks.shift();
             if (retrievedTask !== undefined) {
               this.executeSplit(retrievedTask);
             }
           }
-          clearInterval(switchToReduceWorkersRecruitmentInterval);
         }
       }, 100);
     }
