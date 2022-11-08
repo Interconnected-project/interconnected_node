@@ -138,17 +138,22 @@ export default class MapReduceMasterJob implements Job {
       console.log('RECRUITMENT COMPLETED');
     }
     return new Promise<void>((resolve) => {
-      masterP2PConnection.sendMessage(
-        JSON.stringify({
-          channel: 'START_JOB',
-          payload: {
-            name: 'REDUCE_WORKER',
-            params: {
-              reduceFunction: this.reduceFunction,
-            },
-          },
-        })
-      );
+      const waitingForP2PConnectionToFinalize = setInterval(() => {
+        if (masterP2PConnection.remoteDescription !== undefined) {
+          clearInterval(waitingForP2PConnectionToFinalize);
+          masterP2PConnection.sendMessage(
+            JSON.stringify({
+              channel: 'START_JOB',
+              payload: {
+                name: 'REDUCE_WORKER',
+                params: {
+                  reduceFunction: this.reduceFunction,
+                },
+              },
+            })
+          );
+        }
+      }, 100);
       resolve();
     });
   }
