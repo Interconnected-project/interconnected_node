@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/Tale152/interconnected_node#readme",
   "devDependencies": {
-    "@types/node": "^18.8.0",
+    "@types/node": "^18.11.19",
     "@types/simple-peer": "^9.11.5",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "prettier": "^2.7.1",
